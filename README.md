@@ -47,5 +47,27 @@ TODO 待解决问题，虽然是可以在当前位置触发下一段动画了，
 首先我们知道，在UE4Editor编辑器中可以向关卡放置Actor，而在世界大纲中我们可以将一个Actor`挂在/附加到`另一个Actor下，这时这两个Actor就有了一种关系，因此`附属/子级`的Actor也就拥有了绝对和相对的区别。
 
 先说Actor旋转量为`(0, 0, 0)`的情况，此时你选中的父级Actor，查看它的世界轴向和物体轴向是完全一致的。当这个Actor在世界中的绝对位置为`(100, 100, 100)`时，如果此时附加一个Actor，并将Actor的相对位置设置为`(50, 50, 50)`，那么该Actor在世界中的绝对位置其实就是`(150, 150, 150)`。这应该不难理解。旋转也是同理，
- 
+
+
+ActorSequence中对组件添加的Transform分段不管哪一种，都是基于组件的Actor(假设名字为A)的轴向的。不是基于组件自身轴向也不是基于ActorA挂载的Actor(假设名字为B)的轴向。
+
+AttachToActor函数附加选项有三种。分别是KeepRelative, KeepWorld, SnapToTarget。
+
+假设ActorA原本已附加在ActorC上，ActorA原有的绝对位置为(100,100,100)，原有的相对位置为(50,50,50)，此时将ActorA附加在ActorB上时：
+
+1. 如果采用KeepRelative策略，会基于ActorB的自身轴向，将ActorA的相对信息保留，即附加后，ActorA的相对位置仍然是(50,50,50)；
+2. 如果采用KeepWorld策略，则会保持ActorA的绝对位置(100,100,100)不变，基于ActorB重新计算ActorA在ActorB的相对位置；
+3. 如果采用SnapToTarget策略，会使ActorA使用ActorB的坐标轴，也就是会屏蔽掉ActorA的位置信息，哪怕ActorA的原有相对位置为(50,50,50)附加后相对位置也会变成(0,0,0)。
+
 ## Sequence中Transform分段的选项分析
+
+帅哥。结果分析出来了。
+ActorSequence中对组件添加的Transform分段不管哪一种，都是基于组件的Actor(假设名字为A)的轴向的。不是基于组件自身轴向也不是基于ActorA挂载的Actor(假设名字为B)的轴向。
+
+AttachToActor函数附加选项有三种。分别是KeepRelative, KeepWorld, SnapToTarget。
+
+假设ActorA原本已附加在ActorC上，ActorA原有的绝对位置为(100,100,100)，原有的相对位置为(50,50,50)，此时将ActorA附加在ActorB上时：
+
+1. 如果采用KeepRelative策略，会基于ActorB的自身轴向，将ActorA的相对信息保留，即附加后，ActorA的相对位置仍然是(50,50,50)；
+2. 如果采用KeepWorld策略，则会保持ActorA的绝对位置(100,100,100)不变，基于ActorB重新计算ActorA在ActorB的相对位置；
+3. 如果采用SnapToTarget策略，会使ActorA使用ActorB的坐标轴，也就是会屏蔽掉ActorA的位置信息，哪怕ActorA的原有相对位置为(50,50,50)附加后相对位置也会变成(0,0,0)。
