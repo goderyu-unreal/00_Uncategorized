@@ -3,34 +3,30 @@
 
 #include "ExtraDataPortInfo.h"
 
+DEFINE_LOG_CATEGORY_STATIC(LogAutoExportDataPort, Log, All)
 
 // Sets default values
 AExtraDataPortInfo::AExtraDataPortInfo()
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
-
 }
 
-const TArray<FDataPortInfo> AExtraDataPortInfo::IntegrateDataPorts()
+void AExtraDataPortInfo::IntegrateDataPorts(OUT TMap<FString, FDataPortInfo>& DataPortsInfo)
 {
-	TArray<FDataPortInfo> ExtraDataPortInfo;
+	AppendDataPort(DataPortsInfo, StringReadOnlyDataPorts, EDataPortType::DPT_STRING, EDataPortMode::DPM_READONLY);
+	AppendDataPort(DataPortsInfo, IntegerReadOnlyDataPorts, EDataPortType::DPT_INTEGER, EDataPortMode::DPM_READONLY);
+	AppendDataPort(DataPortsInfo, RealReadOnlyDataPorts, EDataPortType::DPT_REAL, EDataPortMode::DPM_READONLY);
+	AppendDataPort(DataPortsInfo, BoolReadOnlyDataPorts, EDataPortType::DPT_BOOL, EDataPortMode::DPM_READONLY);
 
-	AppendDataPort(ExtraDataPortInfo, StringReadOnlyDataPorts, EDataPortType::DPT_STRING, EDataPortMode::DPM_READONLY);
-	AppendDataPort(ExtraDataPortInfo, IntegerReadOnlyDataPorts, EDataPortType::DPT_INTEGER, EDataPortMode::DPM_READONLY);
-	AppendDataPort(ExtraDataPortInfo, RealReadOnlyDataPorts, EDataPortType::DPT_REAL, EDataPortMode::DPM_READONLY);
-	AppendDataPort(ExtraDataPortInfo, BoolReadOnlyDataPorts, EDataPortType::DPT_BOOL, EDataPortMode::DPM_READONLY);
-
-	AppendDataPort(ExtraDataPortInfo, StringReadWriteDataPorts, EDataPortType::DPT_STRING, EDataPortMode::DPM_READWRITE);
-	AppendDataPort(ExtraDataPortInfo, IntegerReadWriteDataPorts, EDataPortType::DPT_INTEGER, EDataPortMode::DPM_READWRITE);
-	AppendDataPort(ExtraDataPortInfo, RealReadWriteDataPorts, EDataPortType::DPT_REAL, EDataPortMode::DPM_READWRITE);
-	AppendDataPort(ExtraDataPortInfo, BoolReadWriteDataPorts, EDataPortType::DPT_BOOL, EDataPortMode::DPM_READWRITE);
-
-	return ExtraDataPortInfo;
+	AppendDataPort(DataPortsInfo, StringReadWriteDataPorts, EDataPortType::DPT_STRING, EDataPortMode::DPM_READWRITE);
+	AppendDataPort(DataPortsInfo, IntegerReadWriteDataPorts, EDataPortType::DPT_INTEGER, EDataPortMode::DPM_READWRITE);
+	AppendDataPort(DataPortsInfo, RealReadWriteDataPorts, EDataPortType::DPT_REAL, EDataPortMode::DPM_READWRITE);
+	AppendDataPort(DataPortsInfo, BoolReadWriteDataPorts, EDataPortType::DPT_BOOL, EDataPortMode::DPM_READWRITE);
 }
 
 void AExtraDataPortInfo::AppendDataPort(
-	OUT TArray<FDataPortInfo>& ExtraDataPortInfo,
+	OUT TMap<FString, FDataPortInfo>& DataPortsInfo,
 	const TMap<FString, FString>& CategorizedDataPorts,
 	const EDataPortType& Type,
 	const EDataPortMode& Mode)
@@ -41,16 +37,14 @@ void AExtraDataPortInfo::AppendDataPort(
 		{
 			continue;
 		}
-		auto PtrFindedItem = ExtraDataPortInfo.FindByPredicate([&](FDataPortInfo& Info){
-			return Info.Name == NameAndDescription.Key;
-		});
+		auto PtrFindedItem = DataPortsInfo.Find(NameAndDescription.Key);
 		if (PtrFindedItem)
 		{
 			UE_LOG(LogAutoExportDataPort, Warning, TEXT("关卡%s的额外通道权限配置填表存在重名通道%s"), *(this->GetLevel()->GetOuter()->GetName()),*(NameAndDescription.Key));
 		}
 		else
 		{
-			ExtraDataPortInfo.Emplace(FDataPortInfo(NameAndDescription.Key, Type, Mode, NameAndDescription.Value));
+			DataPortsInfo.Emplace(NameAndDescription.Key, FDataPortInfo(Type, Mode, NameAndDescription.Value));
 		}
 	}
 }

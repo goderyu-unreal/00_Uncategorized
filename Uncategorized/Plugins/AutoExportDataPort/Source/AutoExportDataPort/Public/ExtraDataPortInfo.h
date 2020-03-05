@@ -27,9 +27,6 @@ USTRUCT(BlueprintType)
 struct FDataPortInfo
 {
 	GENERATED_USTRUCT_BODY()
-	/// 通道名
-	UPROPERTY(BlueprintReadWrite, EditAnywhere)
-	FString       Name;
 	/// 通道类型
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 	EDataPortType Type;
@@ -42,8 +39,8 @@ struct FDataPortInfo
 
 	FDataPortInfo() {}
 
-	FDataPortInfo(const FString& _Name, const EDataPortType& _Type, const EDataPortMode& _Mode, const FString& _Description)
-	: Name(_Name), Type(_Type), Mode(_Mode), Description(_Description) {}
+	FDataPortInfo(const EDataPortType& _Type, const EDataPortMode& _Mode, const FString& _Description)
+	: Type(_Type), Mode(_Mode), Description(_Description) {}
 };
 
 UCLASS()
@@ -54,36 +51,49 @@ class AUTOEXPORTDATAPORT_API AExtraDataPortInfo : public AActor
 public:	
 	// Sets default values for this actor's properties
 	AExtraDataPortInfo();
-	/// 字符串型读权限通道，左侧填通道名，右侧可选填通道描述
 	UPROPERTY(EditAnywhere, Category = "AutoExportDataPort | ModeReadOnly", DisplayName = "String")
+	/// 字符串型读权限通道，左侧填通道名，右侧可选填通道描述
 	TMap<FString, FString> StringReadOnlyDataPorts;
-	/// 整数型读权限通道，左侧填通道名，右侧可选填通道描述
 	UPROPERTY(EditAnywhere, Category = "AutoExportDataPort | ModeReadOnly", DisplayName = "Integer")
+	/// 整数型读权限通道，左侧填通道名，右侧可选填通道描述
 	TMap<FString, FString> IntegerReadOnlyDataPorts;
-	/// 实数型读权限通道，左侧填通道名，右侧可选填通道描述
 	UPROPERTY(EditAnywhere, Category = "AutoExportDataPort | ModeReadOnly", DisplayName = "Real")
+	/// 实数型读权限通道，左侧填通道名，右侧可选填通道描述
 	TMap<FString, FString> RealReadOnlyDataPorts;
-	/// 布尔型读权限通道，左侧填通道名，右侧可选填通道描述
 	UPROPERTY(EditAnywhere, Category = "AutoExportDataPort | ModeReadOnly", DisplayName = "Bool")
+	/// 布尔型读权限通道，左侧填通道名，右侧可选填通道描述
 	TMap<FString, FString> BoolReadOnlyDataPorts;
-	/// 字符串型读写权限通道，左侧填通道名，右侧可选填通道描述
 	UPROPERTY(EditAnywhere, Category = "AutoExportDataPort | ModeReadWrite", DisplayName = "String")
+	/// 字符串型读写权限通道，左侧填通道名，右侧可选填通道描述
 	TMap<FString, FString> StringReadWriteDataPorts;
-	/// 整数型读写权限通道，左侧填通道名，右侧可选填通道描述
 	UPROPERTY(EditAnywhere, Category = "AutoExportDataPort | ModeReadWrite", DisplayName = "Integer")
+	/// 整数型读写权限通道，左侧填通道名，右侧可选填通道描述
 	TMap<FString, FString> IntegerReadWriteDataPorts;
-	/// 实数型读写权限通道，左侧填通道名，右侧可选填通道描述
 	UPROPERTY(EditAnywhere, Category = "AutoExportDataPort | ModeReadWrite", DisplayName = "Real")
+	/// 实数型读写权限通道，左侧填通道名，右侧可选填通道描述
 	TMap<FString, FString> RealReadWriteDataPorts;
-	/// 布尔型读写权限通道，左侧填通道名，右侧可选填通道描述
 	UPROPERTY(EditAnywhere, Category = "AutoExportDataPort | ModeReadWrite", DisplayName = "Bool")
+	/// 布尔型读写权限通道，左侧填通道名，右侧可选填通道描述
 	TMap<FString, FString> BoolReadWriteDataPorts;
 
-	/// 整合所有通道权限填表的通道数据
 	UFUNCTION(BlueprintCallable, Category = "AutoExportDataPort | ExtraDataPortInfo")
-	const TArray<FDataPortInfo> IntegrateDataPorts();
+	/**
+	 * @brief 整合该Actor填表数据中的所有通道信息到DataPortManager的通道Map表中
+	 * 
+	 * @param DataPortsInfo DataPortManager类中的成员变量DataPortsInfo
+	 */
+	void IntegrateDataPorts(TMap<FString, FDataPortInfo>& DataPortsInfo);
 
-	inline void AppendDataPort(OUT TArray<FDataPortInfo>& ExtraDataPortInfo,
+	/**
+	 * @brief 将填表中每一个分类的通道信息组装成对应格式添加到
+	 * DataPortManager类中的成员变量DataPortsInfoz中
+	 * 
+	 * @param DataPortsInfo DataPortManager类中的成员变量DataPortsInfoz
+	 * @param CategorizedDataPorts 每一个具体的分类Map
+	 * @param Type 标识分类Map表中的通道是什么类型的
+	 * @param Mode 表示分类Map表中的通道是什么权限的
+	 */
+	inline void AppendDataPort(TMap<FString, FDataPortInfo>& DataPortsInfo,
 									const TMap<FString, FString>& CategorizedDataPorts,
 									const EDataPortType& Type,
 									const EDataPortMode& Mode);

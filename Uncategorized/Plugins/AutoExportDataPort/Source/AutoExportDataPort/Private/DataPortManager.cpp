@@ -32,13 +32,10 @@ ADataPortManager* ADataPortManager::GetInstance(const UObject* WorldContextObjec
 
 void ADataPortManager::AddDataPort(const FString& Name, const EDataPortType Type, const EDataPortMode Mode, const FString& Description)
 {
-	auto It = DataPortsInfo.FindByPredicate(
-		[=](const FDataPortInfo& IteratorDataPortInfo) {
-			return IteratorDataPortInfo.Name == Name;
-		});
+	auto It = DataPortsInfo.Find(Name);
 	if (!It)
 	{
-		DataPortsInfo.Emplace(FDataPortInfo(Name, Type, Mode, Description));
+		DataPortsInfo.Emplace(Name, FDataPortInfo(Type, Mode, Description));
 	}
 }
 
@@ -47,7 +44,7 @@ void ADataPortManager::ExportDataPortsInfo(const FString& SavedFileName)
 	FString FileContent = ANSI_TO_TCHAR("ChannelName,Type,Mode\r\n");
 	for (const auto& DataPortInfo : DataPortsInfo)
 	{
-		if (DataPortInfo.Name.IsEmpty())
+		if (DataPortInfo.Key.IsEmpty())
 		{
 			++EmptyDataPortNameCount;
 			continue;
@@ -56,7 +53,7 @@ void ADataPortManager::ExportDataPortsInfo(const FString& SavedFileName)
 
 		FString Type;
 		FString Mode;
-		switch (DataPortInfo.Type)
+		switch (DataPortInfo.Value.Type)
 		{
 		case EDataPortType::DPT_BOOL:
 			Type = FString(TEXT("Bool"));
@@ -73,7 +70,7 @@ void ADataPortManager::ExportDataPortsInfo(const FString& SavedFileName)
 		default:
 			break;
 		}
-		switch (DataPortInfo.Mode)
+		switch (DataPortInfo.Value.Mode)
 		{
 		case EDataPortMode::DPM_READONLY:
 			Mode = FString(TEXT("Input"));

@@ -46,8 +46,10 @@ public:
 
 	/// 固定的通道权限信息，注意：若此处添加的通道已经存在，会覆盖之前其他地方添加的通道。
 	/// 专供最后的修改手段
+	/// Key: 通道名
+	/// Value: 通道类型、权限、详细描述的结构体
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = AutoExportDataPort)
-	TArray<FDataPortInfo> FixedDataPortsInfo;
+	TMap<FString, FDataPortInfo> FixedDataPortsInfo;
 
 protected:
 	// Called when the game starts or when spawned
@@ -58,5 +60,5 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 private:
-	TArray<FDataPortInfo> DataPortsInfo;
+	TMap<FString, FDataPortInfo> DataPortsInfo;
 };
