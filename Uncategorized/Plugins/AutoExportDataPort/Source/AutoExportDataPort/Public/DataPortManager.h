@@ -4,45 +4,12 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "ExtraDataPortInfo.h"
 #include "DataPortManager.generated.h"
 
-UENUM(BlueprintType)
-enum class EDataPortType : uint8
-{
-	DPT_BOOL    UMETA(DisplayName = "布尔型"),
-	DPT_INTEGER UMETA(DisplayName = "整数型"),
-	DPT_REAL    UMETA(DisplayName = "实数型"),
-	DPT_STRING  UMETA(DisplayName = "字符串型")
-};
-
-UENUM(BlueprintType)
-enum class EDataPortMode : uint8
-{
-	DPM_READONLY  UMETA(DisplayName = "只读权限"),
-	DPM_WRITEONLY UMETA(DisplayName = "只写权限"),
-	DPM_READWRITE UMETA(DisplayName = "读写权限")
-};
-
-USTRUCT(BlueprintType)
-struct FDataPortInfo
-{
-	GENERATED_USTRUCT_BODY()
-	/// 通道名
-	UPROPERTY(BlueprintReadWrite, EditAnywhere)
-	FString       Name;
-	/// 通道类型
-	UPROPERTY(BlueprintReadWrite, EditAnywhere)
-	EDataPortType Type;
-	/// UE4对该通道的权限
-	UPROPERTY(BlueprintReadWrite, EditAnywhere)
-	EDataPortMode Mode;
-	/// 通道详细描述
-	UPROPERTY(BlueprintReadWrite, EditAnywhere)
-	FString       Description;
-
-	FDataPortInfo(const FString& _Name,EDataPortType _Type, EDataPortMode _Mode, FString _Description)
-	: Name(_Name), Type(_Type), Mode(_Mode), Description(_Description) {}
-};
+// TODO 1.整合所有ExtraDataPortInfo的通道信息，整合本管理存放的默认通道信息，整合关卡内动态生成的通道信息
+// TODO 2.将整合后的一整个TArray导出到文件中
+// TODO 3.是否添加一个功能，在额外通道信息Actor构造函数中设置标签，一旦管理器生成了权限文件后即可根据标签销毁所有额外通道信息Actor节约资源
 
 UCLASS()
 class AUTOEXPORTDATAPORT_API ADataPortManager : public AActor
@@ -60,7 +27,7 @@ public:
 	bool AddLocomotiveLevelDataPorts(const FString& LocomotiveLevelName);
 
 	UFUNCTION(BlueprintCallable, Category = AutoExportDataPort)
-	void AddDataPort(const FString& Name, const EDataPortType& Type = EDataPortType::DPT_STRING, const EDataPortMode& Mode = EDataPortMode::DPM_READWRITE, const FString& Description = FString(TEXT("")));
+	void AddDataPort(const FString& Name, const EDataPortType Type, const EDataPortMode Mode, const FString& Description);
 
 	UFUNCTION(BlueprintCallable, Category = AutoExportDataPort)
 	void ExportDataPortsInfo(const FString& SavedFileName);
@@ -69,13 +36,18 @@ public:
 	// UFUNCTION(BlueprintCallable, Category = AutoExportDataPort)
 	// void AddReadWriteDataPort(const FDataPortInfo& ReadWriteDataPortInfo);
 
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = AutoExportDataPort)
+	void IntegrateDataPorts();
+
+	void IntegrateDataPorts_Implementation();
 public:
 	UPROPERTY(VisibleAnywhere, Category = AutoExportDataPort)
 	uint32 EmptyDataPortNameCount = 0;
 
-	/// 额外添加的通道权限信息，注意：若此处添加的通道已经存在，会覆盖之前其他地方添加的通道。
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = AutoExportDataPort)
-	TArray<FDataPortInfo> ExtraDataPortsInfo;
+	/// 固定的通道权限信息，注意：若此处添加的通道已经存在，会覆盖之前其他地方添加的通道。
+	/// 专供最后的修改手段
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = AutoExportDataPort)
+	TArray<FDataPortInfo> FixedDataPortsInfo;
 
 protected:
 	// Called when the game starts or when spawned

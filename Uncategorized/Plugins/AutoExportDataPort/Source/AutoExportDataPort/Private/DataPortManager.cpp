@@ -11,13 +11,6 @@ ADataPortManager::ADataPortManager()
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
-	// for (const auto& DataPortInfo : DataPortsInfo)
-	// {
-	// 	if (DataPortInfo.Name.IsEmpty())
-	// 	{
-	// 		++EmptyDataPortNameCount;
-	// 	}
-	// }
 }
 
 ADataPortManager* ADataPortManager::GetInstance(const UObject* WorldContextObject)
@@ -37,7 +30,7 @@ ADataPortManager* ADataPortManager::GetInstance(const UObject* WorldContextObjec
 	return Instance;
 }
 
-void ADataPortManager::AddDataPort(const FString& Name, const EDataPortType& Type, const EDataPortMode& Mode, const FString& Description)
+void ADataPortManager::AddDataPort(const FString& Name, const EDataPortType Type, const EDataPortMode Mode, const FString& Description)
 {
 	auto It = DataPortsInfo.FindByPredicate(
 		[=](const FDataPortInfo& IteratorDataPortInfo) {
@@ -99,26 +92,31 @@ void ADataPortManager::ExportDataPortsInfo(const FString& SavedFileName)
 	}
 }
 
+void ADataPortManager::IntegrateDataPorts_Implementation()
+{
+
+}
+
 // Called when the game starts or when spawned
 void ADataPortManager::BeginPlay()
 {
 	Super::BeginPlay();
 	
-	for (const auto& DataPortInfo : DataPortsInfo)
-	{
-		if (DataPortInfo.Name.IsEmpty())
-		{
-			++EmptyDataPortNameCount;
-		}
-	}
-	UE_LOG(LogAutoExportDataPort, Warning, TEXT("There are a total of %d dataports named null"), EmptyDataPortNameCount);
-	UE_LOG(LogAutoExportDataPort, Warning, TEXT("共计有 %d 个通道名为空"), EmptyDataPortNameCount);
+	// 放这里不起作用的，得在蓝图中BeginPlay整合所有通道后再过
+	// 效率也可能很低，最好是前置位有遍历时直接检查空值直接打日志
+	// for (const auto& DataPortInfo : DataPortsInfo)
+	// {
+	// 	if (DataPortInfo.Name.IsEmpty())
+	// 	{
+	// 		++EmptyDataPortNameCount;
+	// 	}
+	// }
+	// UE_LOG(LogAutoExportDataPort, Warning, TEXT("共计有 %d 个通道名为空"), EmptyDataPortNameCount);
 }
 
 // Called every frame
 void ADataPortManager::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
 }
 
