@@ -26,7 +26,7 @@ public class AbnormalPlugin : ModuleRules
 			new string[]
 			{
 				"Core",
-				"ActorSequence"
+				// "ActorSequence"
 				// ... add other public dependencies that you statically link with here ...
 			}
 			);
