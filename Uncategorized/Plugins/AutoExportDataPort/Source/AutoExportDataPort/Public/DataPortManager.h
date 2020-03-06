@@ -60,5 +60,6 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 private:
+	/// 最终输出到表文件的所有通道信息的Map
 	TMap<FString, FDataPortInfo> DataPortsInfo;
 };
