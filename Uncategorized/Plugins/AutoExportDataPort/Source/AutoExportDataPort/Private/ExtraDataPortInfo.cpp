@@ -2,7 +2,7 @@
 
 
 #include "ExtraDataPortInfo.h"
-
+#define VALNAME(Name) TEXT(#Name)
 DEFINE_LOG_CATEGORY_STATIC(LogAutoExportDataPort, Log, All)
 
 // Sets default values
@@ -35,6 +35,19 @@ void AExtraDataPortInfo::AppendDataPort(
 	{
 		if (NameAndDescription.Key.IsEmpty())
 		{
+			for (TFieldIterator<UProperty> ProIt(AExtraDataPortInfo::StaticClass()); ProIt; ++ProIt)
+			{
+				auto Pro = *ProIt;
+				FString ValName = FString(VALNAME(CategorizedDataPorts));
+				if (Pro->GetNameCPP().Equals(ValName))
+				{
+					if (auto StrPro = Cast<UStrProperty>(Pro))
+					{
+						StrPro->GetDisplayNameText();
+					}
+				}
+			}
+			UE_LOG(LogAutoExportDataPort, Warning, TEXT("关卡%s的额外通道权限配置填表存在空通道"), *(this->GetLevel()->GetOuter()->GetName()));
 			continue;
 		}
 		auto PtrFindedItem = DataPortsInfo.Find(NameAndDescription.Key);
