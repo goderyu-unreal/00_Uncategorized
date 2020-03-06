@@ -87,3 +87,7 @@ Content/Geometry/*
 Content/Mannequin/*
 Content/ThirdPerson*/*
 Content/FirstPerson*/*
+
+# Custom ignore
+*.csv
+*_Home.*
