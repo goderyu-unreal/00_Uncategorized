@@ -9,6 +9,8 @@
 #include "Misc/FileHelper.h"
 /// 包含插件默认头文件，其中定义了自定义Log分类，打印日志用
 #include "AutoExportDataPort.h"
+/// 包含插件的配置文件管理来，用来读取配置信息
+#include "ConfigFileManager.h"
 
 
 // Sets default values
@@ -91,11 +93,17 @@ void ADataPortManager::IntegrateDataPorts_Implementation()
 		}
 	}
 
-	// TODO 将本管理类添加的默认通道整合，根据类型区分（视景只读/可操作读写）
 	// 整合分权限的通道
+	auto ConfigFileManager = ConfigFileManager::GetInstance();
+	FString ProjectDeployCategory = ConfigFileManager.GetValue(TEXT("DeploymentProjectType"), TEXT("ProjectConfig"));
+	if (ProjectDeployCategory.IsEmpty())
+	{
+		UE_LOG(LogAutoExportDataPort, Warning, TEXT("配置文件中当前项目类型为空，已默认分配为前视景机类型，请及时修改"));
+		ProjectDeployCategory = "QSJ";
+	}
+	FString FilePath = FPaths::ConvertRelativePathToFull(FPaths::ProjectConfigDir()) + "AutoExportDataPort/" + ProjectDeployCategory + ".csv"; 
 	FString FileString;
-	FString FileName = FPaths::ConvertRelativePathToFull(FPaths::ProjectConfigDir()) + "AutoExportDataPort/zsj.csv"; 
-	FFileHelper::LoadFileToString(OUT FileString, *FileName);
+	FFileHelper::LoadFileToString(OUT FileString, *FilePath);
 	TArray<FString> DataPortInfoStringArray;
 	FileString.ParseIntoArray(OUT DataPortInfoStringArray, TEXT("\r\n"));
 	// 从索引一开始，将CSV文件中的表头行跳过
