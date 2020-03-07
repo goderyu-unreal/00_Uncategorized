@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "ExtraDataPortInfo.h"
+#include "ConfigFileManager.h"
 #include "DataPortManager.generated.h"
 
 // TODO 1.整合关卡内动态生成的通道信息
@@ -72,4 +73,6 @@ private:
 	inline const FString GetDataPortModeString(const EDataPortMode& Mode) const;
 	inline const EDataPortType GetDataPortTypeEnum(const FString& Type) const;
 	inline const EDataPortMode GetDataPortModeEnum(const FString& Mode) const;
+
+	UConfigFileManager ConfigFileManager;
 };

@@ -1,23 +1,23 @@
 
 #include "ConfigFileManager.h"
 #include "Misc/Paths.h"
-ConfigFileManager::ConfigFileManager(/* args */)
+UConfigFileManager::UConfigFileManager(/* args */)
 {
     FString ConfigFilePath = FPaths::ProjectConfigDir() + FString(TEXT("AutoExportDataPort/Config.ini"));
     ConfigFile.Read(ConfigFilePath);
 }
 
-ConfigFileManager::~ConfigFileManager()
+UConfigFileManager::~UConfigFileManager()
 {
 }
 
-ConfigFileManager ConfigFileManager::GetInstance()
+UConfigFileManager UConfigFileManager::GetInstance()
 {
-    static ConfigFileManager Instance;
+    static UConfigFileManager Instance;
     return Instance;
 }
 
-FString ConfigFileManager::GetValue(const FName& Key, const FString& Section) const
+FString UConfigFileManager::GetValue(const FName& Key, const FString& Section) const
 {
     if (!Section.IsEmpty())
     {

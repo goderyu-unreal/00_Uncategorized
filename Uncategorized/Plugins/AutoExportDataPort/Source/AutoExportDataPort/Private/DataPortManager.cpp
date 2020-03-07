@@ -94,7 +94,6 @@ void ADataPortManager::IntegrateDataPorts_Implementation()
 	}
 
 	// 整合分权限的通道
-	auto ConfigFileManager = ConfigFileManager::GetInstance();
 	FString ProjectDeployCategory = ConfigFileManager.GetValue(TEXT("DeploymentProjectType"), TEXT("ProjectConfig"));
 	if (ProjectDeployCategory.IsEmpty())
 	{
@@ -141,6 +140,7 @@ void ADataPortManager::IntegrateDataPorts_Implementation()
 // Called when the game starts or when spawned
 void ADataPortManager::BeginPlay()
 {
+	ConfigFileManager = UConfigFileManager::GetInstance();
 	Super::BeginPlay();
 }
 

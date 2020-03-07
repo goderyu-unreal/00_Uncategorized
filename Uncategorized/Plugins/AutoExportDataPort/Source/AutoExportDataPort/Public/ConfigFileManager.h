@@ -3,15 +3,15 @@
 #include "CoreMinimal.h"
 #include "Misc/ConfigCacheIni.h"
 
-class ConfigFileManager
+class UConfigFileManager
 {
 private:
     FConfigFile ConfigFile;
 public:
-    ConfigFileManager();
-    ~ConfigFileManager();
+    UConfigFileManager();
+    ~UConfigFileManager();
 
-    static ConfigFileManager GetInstance();
+    static UConfigFileManager GetInstance();
 
     FString GetValue(const FName& Key, const FString& Section = "") const;
 };
