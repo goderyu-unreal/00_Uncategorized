@@ -72,8 +72,9 @@ void AAbnormalManager::SpawnAndBindingToTargetActor_Implementation(const FString
 		{
 			AbnormalActor->Tags.Emplace(FName(*AbnormalId));
 			AbnormalActor->AttachToActor(TargetActor, AttachRule);
-			// TODO 换成委托，通知已经绑定结束，在播放动画前留一个余地做额外的准备操作
-			AbnormalActor->StartPlaySequence();
+			// 换成委托，通知已经绑定结束，在播放动画前留一个余地做额外的准备操作
+			OnBindingActorFinished.Broadcast();
+			// AbnormalActor->StartPlaySequence();
 		}
 	}
 }

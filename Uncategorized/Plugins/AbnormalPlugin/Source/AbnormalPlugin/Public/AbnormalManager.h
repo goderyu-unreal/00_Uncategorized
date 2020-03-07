@@ -7,6 +7,8 @@
 #include "AbnormalBase.h"
 #include "AbnormalManager.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnBindingActorFinished)
+
 USTRUCT(BlueprintType)
 struct FAbnormalInfo
 {
@@ -49,8 +51,12 @@ public:
 	// Sets default values for this actor's properties
 	AAbnormalManager();
 
+	/// 非正常任务设置，Key填写非正常任务名，要确保和外部发送的非正常任务名保持一致
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Abnormal)
 	TMap<FString, FAbnormalsInfo> Abnormals;
+
+	UPROPERTY(BlueprintAssignable, Category = Abnomal)
+	FOnBindingActorFinished OnBindingActorFinished;
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = Abnormal, meta = (WorldContext = "WorldContextObject", DisplayName = "Get Abnormal Manager"))
 	static AAbnormalManager* GetInstance(const UObject* WorldContextObject);
