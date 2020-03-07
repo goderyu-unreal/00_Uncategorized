@@ -7,7 +7,7 @@
 #include "AbnormalBase.h"
 #include "AbnormalManager.generated.h"
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnBindingActorFinished)
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnBindingActorFinished);
 
 USTRUCT(BlueprintType)
 struct FAbnormalInfo
