@@ -102,6 +102,16 @@ void ADataPortManager::ExportDataPortsInfo(const FString& SavedFileName)
 
 void ADataPortManager::IntegrateDataPorts_Implementation()
 {
+	// 整合动态获取的通道信息
+	for (const auto& DynamicGotDataPortInfo : DynamicGotDataPortsInfo)
+	{
+		if (DataPortsInfo.Contains(DynamicGotDataPortInfo.Key))
+		{
+			UE_LOG(LogAutoExportDataPort, Warning, TEXT("添加动态获取到的机车关卡通道时发现已有重名通道%s，但已将其覆盖"), *DynamicGotDataPortInfo.Key);
+		}
+		DataPortsInfo.Emplace(DynamicGotDataPortInfo.Key, DynamicGotDataPortInfo.Value);
+	}	
+
 	// 整合额外填表的通道信息
 	TArray<AActor*> FindedActors; 
 	UGameplayStatics::GetAllActorsOfClass(this, AExtraDataPortInfo::StaticClass(), OUT FindedActors);

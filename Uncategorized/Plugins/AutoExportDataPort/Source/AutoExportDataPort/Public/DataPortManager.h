@@ -58,7 +58,9 @@ public:
 	/// Value: 通道类型、权限、详细描述的结构体
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = AutoExportDataPort)
 	TMap<FString, FDataPortInfo> FixedDataPortsInfo;
-
+	/// 存放程序运行期间动态获取到的所有通道数据，配合AddLocomotiveLevelDataPorts
+	UPROPERTY(BlueprintReadWrite, Category = AutoExportDataPort)
+	TMap<FString, FDataPortInfo> DynamicGotDataPortsInfo;
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
