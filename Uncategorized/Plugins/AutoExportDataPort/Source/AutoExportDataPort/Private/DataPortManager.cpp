@@ -48,8 +48,22 @@ void ADataPortManager::AddDataPort(const FString& Name, const EDataPortType Type
 
 void ADataPortManager::ExportDataPortsInfo(const FString& SavedFileName)
 {
-	FString FilePath = FPaths::ConvertRelativePathToFull(FPaths::ProjectConfigDir()) + "AutoExportDataPort/" + SavedFileName;
-	FString FileContent = ANSI_TO_TCHAR("ChannelName,Type,Mode\r\n");
+	FString ExportFileLevel = ConfigFileManager.GetValue(TEXT("ExportFileLevel"), TEXT("ExtraInfo"));
+	FString FileContent;
+	if (ExportFileLevel.Equals("Base", ESearchCase::IgnoreCase))
+	{
+		FileContent = ANSI_TO_TCHAR("ChannelName,Type,Mode\r\n");
+	}
+	else if (ExportFileLevel.Equals("Normal", ESearchCase::IgnoreCase))
+	{
+		FileContent = ANSI_TO_TCHAR("ChannelName,Type,Mode,Description\r\n");
+	}
+	else
+	{
+		// 以防配置文件出问题，给个默认值
+		FileContent = ANSI_TO_TCHAR("ChannelName,Type,Mode\r\n");
+	}
+	
 	/// 按通道名字母正序排序
 	DataPortsInfo.KeyStableSort([](const FString& A, const FString& B) {
 		return A < B;
@@ -65,8 +79,18 @@ void ADataPortManager::ExportDataPortsInfo(const FString& SavedFileName)
 		auto Type = GetDataPortTypeString(DataPortInfo.Value.Type);
 		auto Mode = GetDataPortModeString(DataPortInfo.Value.Mode);
 		FileContent += (DataPortInfo.Key + "," + Type + "," + Mode);
+		if (ExportFileLevel.Equals("Normal", ESearchCase::IgnoreCase))
+		{
+			FileContent += ("," + DataPortInfo.Value.Description);
+		}
 		FileContent += "\r\n";
 	}
+	FString RelativePath = ConfigFileManager.GetValue(TEXT("DataPortInfoFileRalativePath"), TEXT("ProjectConfig"));
+	if (RelativePath.IsEmpty())
+	{
+		RelativePath = "Config/AutoExportDataPort/";
+	}
+	FString FilePath = FPaths::ConvertRelativePathToFull(FPaths::ProjectDir()) + RelativePath + SavedFileName + ".csv";
 	FFileHelper::SaveStringToFile(FileContent, *FilePath, FFileHelper::EEncodingOptions::ForceUTF8, &IFileManager::Get(), EFileWrite::FILEWRITE_NoReplaceExisting);
 	if (EmptyDataPortNameCount > 0)
 	{
@@ -140,7 +164,8 @@ void ADataPortManager::IntegrateDataPorts_Implementation()
 // Called when the game starts or when spawned
 void ADataPortManager::BeginPlay()
 {
-	ConfigFileManager = UConfigFileManager::GetInstance();
+	// ConfigFileManager = UConfigFileManager::GetInstance();
+	ConfigFileManager = UConfigFileManager();
 	Super::BeginPlay();
 }
 

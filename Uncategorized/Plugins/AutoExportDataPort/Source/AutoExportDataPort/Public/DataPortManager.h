@@ -32,6 +32,11 @@ public:
 	void AddDataPort(const FString& Name, const EDataPortType Type, const EDataPortMode Mode, const FString& Description);
 
 	UFUNCTION(BlueprintCallable, Category = AutoExportDataPort)
+	/**
+	 * @brief 将DataPortsInfo的所有信息导出成csv文件
+	 * 
+	 * @param SavedFileName 要保存的文件名，注意传值时不要带后缀名，默认已加.csv
+	 */
 	void ExportDataPortsInfo(const FString& SavedFileName);
 	// void AddWriteOnlyDataPort(const FDataPortInfo& WriteOnlyDataPortInfo);
 
