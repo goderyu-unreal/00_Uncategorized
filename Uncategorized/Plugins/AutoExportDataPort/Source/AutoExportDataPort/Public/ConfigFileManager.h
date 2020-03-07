@@ -1,3 +1,5 @@
+#pragma once
+
 #include "CoreMinimal.h"
 #include "Misc/ConfigCacheIni.h"
 
@@ -8,5 +10,9 @@ private:
 public:
     ConfigFileManager();
     ~ConfigFileManager();
+
+    static ConfigFileManager GetInstance();
+
+    FString GetValue(const FName& Key, const FString& Section = "") const;
 };
 
