@@ -2,8 +2,8 @@
 
 
 #include "ExtraDataPortInfo.h"
-// #define VALNAME(Name) #Name
-DEFINE_LOG_CATEGORY_STATIC(LogAutoExportDataPort, Log, All)
+/// 包含插件默认头文件，其中定义了自定义Log分类，打印日志用
+#include "AutoExportDataPort.h"
 
 // Sets default values
 AExtraDataPortInfo::AExtraDataPortInfo()

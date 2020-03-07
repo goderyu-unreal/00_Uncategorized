@@ -39,7 +39,7 @@ struct FDataPortInfo
 
 	FDataPortInfo() {}
 
-	FDataPortInfo(const EDataPortType& _Type, const EDataPortMode& _Mode, const FString& _Description)
+	FDataPortInfo(const EDataPortType& _Type, const EDataPortMode& _Mode, const FString& _Description = TEXT(""))
 	: Type(_Type), Mode(_Mode), Description(_Description) {}
 };
 

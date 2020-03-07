@@ -5,6 +5,8 @@
 #include "CoreMinimal.h"
 #include "Modules/ModuleManager.h"
 
+DECLARE_LOG_CATEGORY_EXTERN(LogAutoExportDataPort, Log, All)
+
 class FAutoExportDataPortModule : public IModuleInterface
 {
 public:

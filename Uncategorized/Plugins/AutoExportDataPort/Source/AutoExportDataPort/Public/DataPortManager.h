@@ -70,4 +70,6 @@ private:
 
 	inline const FString GetDataPortTypeString(const EDataPortType& Type) const;
 	inline const FString GetDataPortModeString(const EDataPortMode& Mode) const;
+	inline const EDataPortType GetDataPortTypeEnum(const FString& Type) const;
+	inline const EDataPortMode GetDataPortModeEnum(const FString& Mode) const;
 };
