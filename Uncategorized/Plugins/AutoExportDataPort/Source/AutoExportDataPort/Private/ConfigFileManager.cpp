@@ -1,8 +1,9 @@
 
 #include "ConfigFileManager.h"
 #include "Misc/Paths.h"
-UConfigFileManager::UConfigFileManager(/* args */)
+UConfigFileManager::UConfigFileManager()
 {
+    // 这个动态获取不了了。硬编码方式，获取固定路径下的配置文件
     FString ConfigFilePath = FPaths::ProjectConfigDir() + FString(TEXT("AutoExportDataPort/Config.ini"));
     ConfigFile.Read(ConfigFilePath);
 }
@@ -11,7 +12,7 @@ UConfigFileManager::~UConfigFileManager()
 {
 }
 
-UConfigFileManager UConfigFileManager::GetInstance()
+UConfigFileManager& UConfigFileManager::GetInstance()
 {
     static UConfigFileManager Instance;
     return Instance;
