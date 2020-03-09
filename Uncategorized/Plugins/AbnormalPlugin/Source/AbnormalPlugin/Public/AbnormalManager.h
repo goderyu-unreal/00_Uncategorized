@@ -61,6 +61,7 @@ public:
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = Abnormal, meta = (WorldContext = "WorldContextObject", DisplayName = "Get Abnormal Manager"))
 	static AAbnormalManager* GetInstance(const UObject* WorldContextObject);
 	
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = Abnormal)
 	/**
 	 * @brief 开始执行任务
 	 * 
@@ -68,11 +69,11 @@ public:
 	 * @param AbnormalTaskName 任务名，用来和Abnormals中的键对应
 	 * @param TargetTransforms 位置信息，用来生成TargetPoint
 	 */
-	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = Abnormal)
 	void TriggerTask(const FString& AbnormalId, const FString& AbnormalTaskName, const TArray<FTransform>& TargetTransforms);
 
 	void TriggerTask_Implementation(const FString& AbnormalId, const FString& AbnormalTaskName, const TArray<FTransform>& TargetTransforms);
 
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = Abnormal)
 	/**
 	 * @brief 根据TargetActors的个数生成AbnormalClass指定类的Actor
 	 * 生成的Actor依次附加到TargetActor上
@@ -81,11 +82,24 @@ public:
 	 * @param AbnormalClass 要生成Actor的类
 	 * @param TargetActors 要附加的Actor数组
 	 */
+	void SpawnAndBindingAbnormalActorToTargetActors(const FString& AbnormalId, UClass* AbnormalClass, const TArray<class AActor*>& TargetActors);
+
+	void SpawnAndBindingAbnormalActorToTargetActors_Implementation(const FString& AbnormalId, UClass* AbnormalClass, const TArray<class AActor*>& TargetActors);
+
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = Abnormal)
-	void SpawnAndBindingToTargetActor(const FString& AbnormalId, UClass* AbnormalClass, const TArray<class AActor*>& TargetActors);
+	/**
+	 * @brief 根据TargetActors的个数生成AbnormalClass指定类的Actor
+	 * 生成的Actor依次附加到TargetActor上
+	 * 
+	 * @param AbnormalId 任务ID，生成Actor时添加Tag，用于删除Actor时索引 
+	 * @param AbnormalClass 要生成Actor的类
+	 * @param TargetActors 要附加的Actor数组
+	 */
+	void BindingAbnormalActorToTargetActors(const FString& AbnormalId, AAbnormalBase* AbnormalActor, const TArray<class AActor*>& TargetActors);
 
-	void SpawnAndBindingToTargetActor_Implementation(const FString& AbnormalId, UClass* AbnormalClass, const TArray<class AActor*>& TargetActors);
+	void BindingAbnormalActorToTargetActors_Implementation(const FString& AbnormalId, AAbnormalBase* AbnormalActor, const TArray<class AActor*>& TargetActors);
 
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = Abnormal)
 	/**
 	 * @brief 根据TargetTransforms在每一个Transform生成一个ATargetPoint
 	 * 并为每一个Actor设置值为AbnormalId的Tag
@@ -94,11 +108,11 @@ public:
 	 * @param TargetTransforms 
 	 * @return const TArray<class AActor*> 生成的Actor数组
 	 */
-	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = Abnormal)
 	const TArray<class AActor*> SpawnTargetActor(const FString& AbnormalId, const TArray<FTransform>& TargetTransforms);
 
 	const TArray<class AActor*> SpawnTargetActor_Implementation(const FString& AbnormalId, const TArray<FTransform>& TargetTransforms);
 
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = Abnormal)
 	/**
 	 * @brief 根据IdTag销毁动态生成的TargetActor和AbnormalActor
 	 * 
@@ -106,7 +120,6 @@ public:
 	 * @return true 如果每一个带有AbnormalId标签的Actor销毁成功则返回
 	 * @return false 只要有一个没有销毁成功返回false
 	 */
-	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = Abnormal)
 	bool DestroyAbnormalActorsById(const FString& AbnormalId);
 
 	bool DestroyAbnormalActorsById_Implementation(const FString& AbnormalId);
