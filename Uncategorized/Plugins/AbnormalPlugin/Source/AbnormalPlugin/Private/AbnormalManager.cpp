@@ -9,7 +9,7 @@
 #include "Engine/World.h"
 #include "Kismet/GameplayStatics.h"
 
-#define OUT
+
 
 // Sets default values
 AAbnormalManager::AAbnormalManager()

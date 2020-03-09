@@ -5,6 +5,10 @@
 #include "CoreMinimal.h"
 #include "Modules/ModuleManager.h"
 
+#ifndef OUT
+#define OUT
+#endif
+
 DECLARE_LOG_CATEGORY_EXTERN(LogAbnormalPlugin, Log, All)
 
 class FAbnormalPluginModule : public IModuleInterface
