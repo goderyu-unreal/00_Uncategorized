@@ -2,6 +2,7 @@
 
 
 #include "AbnormalManager.h"
+#include "AbnormalPlugin.h"
 #include "EngineUtils.h"
 #include "Engine/EngineTypes.h"
 #include "Engine/TargetPoint.h"
@@ -10,7 +11,6 @@
 
 #define OUT
 
-DEFINE_LOG_CATEGORY_STATIC(LogAbnormalPlugin, Log, All);
 // Sets default values
 AAbnormalManager::AAbnormalManager()
 {
