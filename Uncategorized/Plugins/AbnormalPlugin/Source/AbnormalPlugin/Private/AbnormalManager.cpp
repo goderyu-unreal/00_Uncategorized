@@ -133,6 +133,90 @@ bool AAbnormalManager::DestroyAbnormalActorsById_Implementation(const FString& A
 	return bAllDestroy;
 }
 
+void AAbnormalManager::PostEditChangeProperty(struct FPropertyChangedEvent &PropertyChangedEvent)
+{
+	auto PropertyName = PropertyChangedEvent.Property != nullptr ? PropertyChangedEvent.Property->GetFName() : NAME_None;
+
+	if (PropertyName == GET_MEMBER_NAME_CHECKED(AAbnormalManager, Abnormals))
+	{
+		UE_LOG(LogAbnormalPlugin, Error, TEXT("Trigger Property Changed"));
+	}
+	// if (PropertyName == GET_MEMBER_NAME_CHECKED(AAbnormalManager, bDynamic))
+	// {
+	// 	if (bDynamic)
+	// 	{
+	// 		//显示V1，隐藏V2
+	// 		for (TFieldIterator<UProperty> ProIt(AAbnormalManager::StaticClass()); ProIt; ++ProIt)
+	// 		{
+	// 			auto Pro = *ProIt;
+	// 			if (Pro->GetNameCPP().Equals("V1"))
+	// 			{
+	// 				// auto BoolPro = Cast<UBoolProperty>(Pro);
+	// 				// if (BoolPro)
+	// 				// {
+	// 				// 	V1FlagValue = BoolPro->GetPropertyFlags();
+	// 				// 	BoolPro->SetPropertyFlags(CPF_Edit);
+	// 				// 	BoolPro->SetMetaData("Category", TEXT("Abnormal"));
+	// 				// }
+	// 				// V1FlagValue = Pro->GetPropertyFlags();
+	// 				Pro->SetPropertyFlags(CPF_Edit);
+	// 				Pro->SetMetaData("Category", TEXT("Abnormal"));
+	// 				continue;
+	// 			}
+	// 			else if (Pro->GetNameCPP().Equals("V2"))
+	// 			{
+	// 				// auto BoolPro = Cast<UBoolProperty>(Pro);
+	// 				// if (BoolPro)
+	// 				// {
+	// 				// 	V1FlagValue = BoolPro->GetPropertyFlags(); //6755469234274817
+	// 				// 	BoolPro->ClearPropertyFlags(CPF_Edit);
+	// 				// 	BoolPro->RemoveMetaData("Category");
+	// 				// }
+	// 				// V2FlagValue = Pro->GetPropertyFlags();
+	// 				Pro->ClearPropertyFlags(CPF_Edit);
+	// 				Pro->RemoveMetaData("Category");
+	// 				continue;
+	// 			}
+	// 		}
+	// 	}
+	// 	else
+	// 	{
+	// 		//隐藏V1，显示V2
+	// 		for (TFieldIterator<UProperty> ProIt(AAbnormalManager::StaticClass()); ProIt; ++ProIt)
+	// 		{
+	// 			auto Pro = *ProIt;
+	// 			if (Pro->GetNameCPP().Equals("V1"))
+	// 			{
+	// 				// auto BoolPro = Cast<UBoolProperty>(Pro);
+	// 				// if (BoolPro)
+	// 				// {
+	// 				// 	V1FlagValue = BoolPro->GetPropertyFlags(); //6755469234274817
+	// 				// 	BoolPro->ClearPropertyFlags(CPF_Edit);
+	// 				// }
+	// 				// V1FlagValue = Pro->GetPropertyFlags(); //6755469234274817
+	// 				Pro->ClearPropertyFlags(CPF_Edit);
+	// 				Pro->RemoveMetaData("Category");
+	// 				continue;
+	// 			}
+	// 			else if (Pro->GetNameCPP().Equals("V2"))
+	// 			{
+	// 				// auto BoolPro = Cast<UBoolProperty>(Pro);
+	// 				// if (BoolPro)
+	// 				// {
+	// 				// 	V2FlagValue = BoolPro->GetPropertyFlags(); //6755469234274816
+	// 				// 	BoolPro->SetPropertyFlags(CPF_Edit);
+	// 				// 	BoolPro->SetMetaData("Category", TEXT("Abnormal"));
+	// 				// }
+	// 				// V2FlagValue = Pro->GetPropertyFlags(); //6755469234274816
+	// 				Pro->SetPropertyFlags(CPF_Edit);
+	// 				Pro->SetMetaData("Category", TEXT("Abnormal"));
+	// 				continue;
+	// 			}
+	// 		}
+	// 	}
+	// }
+}
+
 // Called when the game starts or when spawned
 void AAbnormalManager::BeginPlay()
 {
