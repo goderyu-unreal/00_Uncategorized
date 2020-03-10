@@ -61,6 +61,7 @@ void AAbnormalManager::TriggerTask_Implementation(const FString& AbnormalId, con
 			{
 				if (AbnormalInfo.AbnormalActor)
 				{
+					// TODO 将逻辑该为传递目标点数组，找到第一个有效元素挂载后返回。
 					if (AbnormalInfo.TargetActors.Num() > 0 && AbnormalInfo.TargetActors.Last())
 					{
 						BindingAbnormalActorToTargetActors(AbnormalId, AbnormalInfo.AbnormalActor, AbnormalInfo.TargetActors.Last());
