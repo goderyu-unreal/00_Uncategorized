@@ -61,7 +61,15 @@ void AAbnormalManager::TriggerTask_Implementation(const FString& AbnormalId, con
 			{
 				if (AbnormalInfo.AbnormalActor)
 				{
-					BindingAbnormalActorToTargetActors(AbnormalId, AbnormalInfo.AbnormalActor, AbnormalInfo.TargetActors);
+					if (AbnormalInfo.TargetActors.Num() > 0 && AbnormalInfo.TargetActors.Last())
+					{
+						BindingAbnormalActorToTargetActors(AbnormalId, AbnormalInfo.AbnormalActor, AbnormalInfo.TargetActors.Last());
+					}
+					else
+					{
+						UE_LOG(LogAbnormalPlugin, Warning, TEXT("目标点集合没有有效元素"));
+						
+					}
 				}
 				else
 				{
@@ -89,18 +97,11 @@ void AAbnormalManager::SpawnAndBindingAbnormalActorToTargetActors_Implementation
 }
 
 // TODO 貌似可以和动态生成绑定函数整合成一个函数，不过也不好
-void AAbnormalManager::BindingAbnormalActorToTargetActors_Implementation(const FString& AbnormalId, AAbnormalBase* AbnormalActor, const TArray<class AActor*>& TargetActors)
+void AAbnormalManager::BindingAbnormalActorToTargetActors_Implementation(const FString& AbnormalId, AAbnormalBase* AbnormalActor, AActor* TargetActor)
 {
 	auto AttachRule = FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true);
-	for (const auto& TargetActor : TargetActors)
-	{
-		// 外层已经做过非空判断了，内层再做没有必要
-		// if (AbnormalActor)
-		// {
-			AbnormalActor->AttachToActor(TargetActor, AttachRule);
-			OnBindingActorFinished.Broadcast();
-		// }
-	}
+	AbnormalActor->AttachToActor(TargetActor, AttachRule);
+	OnBindingActorFinished.Broadcast();
 }
 
 const TArray<class AActor*> AAbnormalManager::SpawnTargetActor_Implementation(const FString& AbnormalId, const TArray<FTransform>& TargetTransforms)
