@@ -2,15 +2,15 @@
 
 
 #include "AbnormalManager.h"
+#include "AbnormalPlugin.h"
 #include "EngineUtils.h"
 #include "Engine/EngineTypes.h"
 #include "Engine/TargetPoint.h"
 #include "Engine/World.h"
 #include "Kismet/GameplayStatics.h"
 
-#define OUT
 
-DEFINE_LOG_CATEGORY_STATIC(LogAbnormalPlugin, Log, All);
+
 // Sets default values
 AAbnormalManager::AAbnormalManager()
 {
@@ -42,28 +42,37 @@ void AAbnormalManager::TriggerTask_Implementation(const FString& AbnormalId, con
 {
 	if (auto AbnormalTask = Abnormals.Find(AbnormalTaskName))
 	{
-		if (AbnormalTask)
+		for (auto &AbnormalInfo : AbnormalTask->AbnormalsInfo)
 		{
-			for (auto &AbnormalInfo : AbnormalTask->AbnormalsInfo)
+			auto SpawnedTargetActors = SpawnTargetActor(AbnormalId, TargetTransforms);
+			AbnormalInfo.TargetActors.Append(SpawnedTargetActors);
+			if (AbnormalInfo.bDynamicGenerateActor)
 			{
-				auto SpawnedTargetActors = SpawnTargetActor(AbnormalId, TargetTransforms);
-				AbnormalInfo.TargetActors.Append(SpawnedTargetActors);
-				if (AbnormalInfo.bDynamicGenerateActor)
+				if (auto Class = AbnormalInfo.AbnormalClass.Get())
 				{
-					if (auto Class = AbnormalInfo.AbnormalClass.Get())
-					{
-						SpawnAndBindingToTargetActor(AbnormalId, Class, AbnormalInfo.TargetActors);
-					}
+					SpawnAndBindingAbnormalActorToTargetActors(AbnormalId, Class, AbnormalInfo.TargetActors);
 				}
 				else
 				{
+					UE_LOG(LogAbnormalPlugin, Warning, TEXT("填表信息中没有为%s非正常条目指定非正常Actor"), *AbnormalTaskName);
+				}
+			}
+			else
+			{
+				if (AbnormalInfo.AbnormalActor)
+				{
+					BindingAbnormalActorToTargetActors(AbnormalId, AbnormalInfo.AbnormalActor, AbnormalInfo.TargetActors);
+				}
+				else
+				{
+					UE_LOG(LogAbnormalPlugin, Warning, TEXT("填表信息中没有为%s非正常条目指定具体的非正常Actor"), *AbnormalTaskName);
 				}
 			}
 		}
 	}
 }
 
-void AAbnormalManager::SpawnAndBindingToTargetActor_Implementation(const FString& AbnormalId, UClass* AbnormalClass, const TArray<class AActor*>& TargetActors)
+void AAbnormalManager::SpawnAndBindingAbnormalActorToTargetActors_Implementation(const FString& AbnormalId, UClass* AbnormalClass, const TArray<class AActor*>& TargetActors)
 {
 	auto AttachRule = FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true);
 	for (const auto& TargetActor : TargetActors)
@@ -72,9 +81,25 @@ void AAbnormalManager::SpawnAndBindingToTargetActor_Implementation(const FString
 		{
 			AbnormalActor->Tags.Emplace(FName(*AbnormalId));
 			AbnormalActor->AttachToActor(TargetActor, AttachRule);
-			// TODO 换成委托，通知已经绑定结束，在播放动画前留一个余地做额外的准备操作
-			AbnormalActor->StartPlaySequence();
+			// 换成委托，通知已经绑定结束，在播放动画前留一个余地做额外的准备操作
+			OnBindingActorFinished.Broadcast();
+			// AbnormalActor->StartPlaySequence();
 		}
+	}
+}
+
+// TODO 貌似可以和动态生成绑定函数整合成一个函数，不过也不好
+void AAbnormalManager::BindingAbnormalActorToTargetActors_Implementation(const FString& AbnormalId, AAbnormalBase* AbnormalActor, const TArray<class AActor*>& TargetActors)
+{
+	auto AttachRule = FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true);
+	for (const auto& TargetActor : TargetActors)
+	{
+		// 外层已经做过非空判断了，内层再做没有必要
+		// if (AbnormalActor)
+		// {
+			AbnormalActor->AttachToActor(TargetActor, AttachRule);
+			OnBindingActorFinished.Broadcast();
+		// }
 	}
 }
 
