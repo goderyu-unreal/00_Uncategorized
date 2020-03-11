@@ -10,7 +10,6 @@
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnBindingActorFinished);
 
-
 UCLASS()
 class ABNORMALPLUGIN_API AAbnormalManager : public AActor
 {

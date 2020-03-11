@@ -18,7 +18,6 @@ enum class ETargetTransformSource : uint8
 USTRUCT(BlueprintType)
 struct FAbnormalInfo
 {
-	// TODO 重构填表结构，将bDynamicInputTransform控制的两种状态改为由枚举控制的多种状态
 	GENERATED_USTRUCT_BODY()
 	UPROPERTY(EditAnywhere, Category = Abnormal, meta = (InlineEditConditionToggle))
 	/// 动态生成非正常Actor标识，从实例中选择和从类中选择只能二选一
@@ -32,11 +31,14 @@ struct FAbnormalInfo
 	/// 未拖入场景中的非正常Actor类，只能指定AbnormalBase类及其子类
 	TSubclassOf<AAbnormalBase> AbnormalClass;
 
-	UPROPERTY(EditAnywhere, Category = Abnormal, meta = (InlineEditConditionToggle))
-	/// 是否采用外部提供的位置数据，如果不需要，
-	bool bDynamicInputTransform = false;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Abnormal)
+	/// 挂载点位置信息来源
+	/// 自身提供：将由非正常Actor的具体填表属性来决定出现的位置。例如第一节车厢的中心偏移相对距离
+	/// 目标指定：将由填表信息TargetActors来指定具体的挂载点。例如线路火灾直接使用场景中某段线路旁的目标点
+	/// 外部提供：将由下发非正常任务的外部程序提供位置信息。例如外部发送落石非正常并发送了一个世界坐标
+	ETargetTransformSource TargetTransformSource;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Abnormal, meta = (EditCondition = "!bDynamicInputTransform"))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Abnormal, meta = (EditCondition = "TargetTransformSource == ETargetTransformSource::TTS_FROMTARGETACTORS"))
 	/// 欲挂载的目标点，一个单位的非正常动画可以挂载到多个目标点上
 	TArray<AActor*> TargetActors;
 
@@ -48,15 +50,6 @@ struct FAbnormalInfo
 	/// 设置延迟播放的时间
 	float DelaySeconds;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Abnormal)
-	/// 挂载点位置信息来源
-	/// 自身提供：将由非正常Actor的具体填表属性来决定出现的位置。例如第一节车厢的中心偏移相对距离
-	/// 目标指定：将由填表信息TargetActors来指定具体的挂载点。例如线路火灾直接使用场景中某段线路旁的目标点
-	/// 外部提供：将由下发非正常任务的外部程序提供位置信息。例如外部发送落石非正常并发送了一个世界坐标
-	ETargetTransformSource TargetTransformSource;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Abnormal, meta = (EditCondition = "TargetTransformSource == ETargetTransformSource::TTS_FROMSELF"))
-	FString FromSelf;
 };
 
 USTRUCT(BlueprintType)

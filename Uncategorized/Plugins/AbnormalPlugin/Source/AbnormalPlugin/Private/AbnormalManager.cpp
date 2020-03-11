@@ -80,17 +80,25 @@ void AAbnormalManager::TriggerTask_Implementation(const FString& AbnormalId, con
 	{
 		for (auto &AbnormalInfo : AbnormalTask->AbnormalsInfo)
 		{
-			auto SpawnedTargetActors = SpawnTargetActor(AbnormalId, TargetTransforms);
 			TArray<AActor*> TargetActors;
-			if (AbnormalInfo.bDynamicInputTransform)
+			switch (AbnormalInfo.TargetTransformSource)
 			{
-				TargetActors = SpawnTargetActor(AbnormalId, TargetTransforms);
-			}
-			else
-			{
+			case ETargetTransformSource::TTS_FROMSELF:
+				// 执行非正常Actor的自定义绑定			
+				// TODO 确定生成非正常Actor和绑定的时机，先后顺序，别让TriggerTask太冗余
+				break;
+			case ETargetTransformSource::TTS_FROMTARGETACTORS:
+				// 由管理来执行绑定，将Actor绑定到指定目标点
 				TargetActors = AbnormalInfo.TargetActors;
+				break;
+			case ETargetTransformSource::TTS_FROMOUTSIDE:
+				// 由管理来执行绑定，先将外部提供的数据生成目标点，再将Actor绑定到目标点
+				TargetActors = SpawnTargetActor(AbnormalId, TargetTransforms);
+				break;
+			default:
+				break;
 			}
-			// AbnormalInfo.TargetActors.Append(SpawnedTargetActors);
+
 			if (AbnormalInfo.bDynamicGenerateActor)
 			{
 				if (auto Class = AbnormalInfo.AbnormalClass.Get())
