@@ -123,7 +123,7 @@ void ADataPortManager::IntegrateDataPorts_Implementation()
 		}
 		else
 		{
-			UE_LOG(LogAutoExportDataPort, Warning, TEXT("获取所有ExtraDataPortInfo的Actor时从AActor转型到AExtraDataPortInfo失败一个，该Actor所在关卡为%s"), *Actor->GetLevel()->GetName());
+			UE_LOG(LogAutoExportDataPort, Warning, TEXT("获取所有ExtraDataPortInfo的Actor时从AActor转型到AExtraDataPortInfo失败一个，该Actor所在关卡为%s"), *Actor->GetLevel()->GetOuter()->GetName());
 		}
 	}
 
