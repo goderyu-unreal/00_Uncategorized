@@ -5,42 +5,11 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "AbnormalBase.h"
+#include "AbnormalTaskInfo.h"
 #include "AbnormalManager.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnBindingActorFinished);
 
-USTRUCT(BlueprintType)
-struct FAbnormalInfo
-{
-	GENERATED_USTRUCT_BODY()
-	/// 动态生成非正常Actor标识，从实例中选择和从类中选择只能二选一
-	UPROPERTY(EditAnywhere, Category = Abnormal, meta = (InlineEditConditionToggle))
-	bool bDynamicGenerateActor = true;
-	/// 场景中已存在的非正常Actor，具体类型的非正常，如铁路维修人员施工非正常Actor、石头滚落Actor
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Abnormal, meta = (EditCondition = "!bDynamicGenerateActor"))
-	class AAbnormalBase* AbnormalActor;
-	/// 未拖入场景中的非正常Actor类，只能指定AbnormalBase类及其子类
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Abnormal, meta = (EditCondition = "bDynamicGenerateActor"))
-	TSubclassOf<AAbnormalBase> AbnormalClass;
-	/// 欲挂载的目标点，一个单位的非正常动画可以挂载到多个目标点上
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Abnormal)
-	TArray<AActor*> TargetActors;
-
-	/// 默认播放一次，设置为0或负数表示无限循环播放
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Abnormal, AdvancedDisplay)
-	int32 PlayCount = 1;
-	/// 设置延迟播放的时间
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Abnormal, AdvancedDisplay)
-	float DelaySeconds;
-};
-
-USTRUCT(BlueprintType)
-struct FAbnormalsInfo
-{
-	GENERATED_USTRUCT_BODY()
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Abnormal)	
-	TArray<FAbnormalInfo> AbnormalsInfo;
-};
 
 UCLASS()
 class ABNORMALPLUGIN_API AAbnormalManager : public AActor
@@ -55,12 +24,17 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Abnormal)
 	TMap<FString, FAbnormalsInfo> Abnormals;
 
-	UPROPERTY(BlueprintAssignable, Category = Abnomal)
+	UPROPERTY(BlueprintAssignable, Category = Abnormal)
 	FOnBindingActorFinished OnBindingActorFinished;
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = Abnormal, meta = (WorldContext = "WorldContextObject", DisplayName = "Get Abnormal Manager"))
 	static AAbnormalManager* GetInstance(const UObject* WorldContextObject);
 	
+	UFUNCTION(BlueprintNativeEvent, Category = Abnormal)
+	void IntegrateAllAbnormalTaskInfoToAbnormals(TMap<FString, FAbnormalsInfo>& AbnormalsMap);
+
+	void IntegrateAllAbnormalTaskInfoToAbnormals_Implementation(TMap<FString, FAbnormalsInfo>& AbnormalsMap);
+
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = Abnormal)
 	/**
 	 * @brief 开始执行任务

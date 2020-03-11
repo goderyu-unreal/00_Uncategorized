@@ -37,6 +37,41 @@ AAbnormalManager *AAbnormalManager::GetInstance(const UObject *WorldContextObjec
 	return Instance;
 }
 
+void AAbnormalManager::IntegrateAllAbnormalTaskInfoToAbnormals_Implementation(TMap<FString, FAbnormalsInfo>& AbnormalsMap)
+{
+	// 整合填表的非正常任务信息
+	TArray<AActor*> FindedActors; 
+	// 这样获取到的Actor，只有和第一个参数，this处于同一个关卡流的才行。
+	// 使用加载关卡实例或者打开关卡的方法加载的关卡里面的Actor获取不到的。
+	// FIXME 如何完整地获取非正常任务填表信息？
+	UGameplayStatics::GetAllActorsOfClass(this, AAbnormalTaskInfo::StaticClass(), OUT FindedActors);
+	for (const auto& Actor : FindedActors)
+	{
+		if (auto AbnormalTaskInfo = Cast<AAbnormalTaskInfo>(Actor))
+		{
+			// 获取填表的非正常任务信息，并在这里检测是否在整合到Manager的Abnormals时发现已存在，打印出两者所在关卡，供用户修改
+			for(const auto& AbnormalTask : AbnormalTaskInfo->ExtraAbnormals)
+			{
+				// 如果Manager的表中已经存在该条填表中的非正常任务
+				if (AbnormalsMap.Contains(AbnormalTask.Key))
+				{
+					// 获取关卡名，和内容浏览器保持一致的名称，不能直接使用GetLevel()->GetName()，而是使用GetLevel()->GetOuter()->GetName()
+					UE_LOG(LogAbnormalPlugin, Warning, TEXT("发现重复填表的非正常任务%s，其所在关卡为%s"), *AbnormalTask.Key, *(AbnormalTaskInfo->GetLevel()->GetOuter()->GetName()));
+					continue;
+				}
+				else
+				{
+					AbnormalsMap.Emplace(AbnormalTask.Key, AbnormalTask.Value);
+					UE_LOG(LogAbnormalPlugin, Log, TEXT("已整合%s非正常任务信息，其填表Actor所在关卡为%s"), *AbnormalTask.Key, *(AbnormalTaskInfo->GetLevel()->GetOuter()->GetName()));
+				}
+			}
+		}
+		else
+		{
+			UE_LOG(LogAbnormalPlugin, Warning, TEXT("获取所有AbnormalTaskInfo的Actor时从AActor转型到AAbnormalTaskInfo失败一个，该Actor所在关卡为%s"), *(Actor->GetLevel()->GetOuter()->GetName()));
+		}
+	}
+}
 
 void AAbnormalManager::TriggerTask_Implementation(const FString& AbnormalId, const FString& AbnormalTaskName, const TArray<FTransform>& TargetTransforms)
 {
@@ -222,6 +257,10 @@ void AAbnormalManager::PostEditChangeProperty(struct FPropertyChangedEvent &Prop
 // Called when the game starts or when spawned
 void AAbnormalManager::BeginPlay()
 {
+	// 运行时先整合分布在不同关卡中的非正常任务信息，这样可以解决具体非正常想挂载到具体目标点上的问题
+	// FIXME 如果是关卡流加载形式，BeginPlay中执行一次是否能获取所有填表信息？这里有待检验的逻辑漏洞
+	// 验证了一半，关卡流被加载进来的已经都能获取到了，目前并不会测试没有被加载的
+	IntegrateAllAbnormalTaskInfoToAbnormals(OUT Abnormals);
 	Super::BeginPlay();
 	
 }
@@ -229,6 +268,12 @@ void AAbnormalManager::BeginPlay()
 // Called every frame
 void AAbnormalManager::Tick(float DeltaTime)
 {
+	// static bool DoOnce = true;
+	// if (DoOnce)
+	// {
+	// 	IntegrateAllAbnormalTaskInfoToAbnormals(OUT Abnormals);
+	// 	DoOnce = false;
+	// }
 	Super::Tick(DeltaTime);
 
 }
