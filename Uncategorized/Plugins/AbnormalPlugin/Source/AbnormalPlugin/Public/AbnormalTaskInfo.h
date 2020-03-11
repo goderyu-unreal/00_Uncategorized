@@ -9,6 +9,7 @@
 USTRUCT(BlueprintType)
 struct FAbnormalInfo
 {
+	// TODO 重构填表结构，将bDynamicInputTransform控制的两种状态改为由枚举控制的多种状态
 	GENERATED_USTRUCT_BODY()
 	/// 动态生成非正常Actor标识，从实例中选择和从类中选择只能二选一
 	UPROPERTY(EditAnywhere, Category = Abnormal, meta = (InlineEditConditionToggle))
@@ -19,8 +20,11 @@ struct FAbnormalInfo
 	/// 未拖入场景中的非正常Actor类，只能指定AbnormalBase类及其子类
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Abnormal, meta = (EditCondition = "bDynamicGenerateActor"))
 	TSubclassOf<AAbnormalBase> AbnormalClass;
+	/// 是否采用外部提供的位置数据，如果不需要，
+	UPROPERTY(EditAnywhere, Category = Abnormal, meta = (InlineEditConditionToggle))
+	bool bDynamicInputTransform = false;
 	/// 欲挂载的目标点，一个单位的非正常动画可以挂载到多个目标点上
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Abnormal)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Abnormal, meta = (EditCondition = "!bDynamicInputTransform"))
 	TArray<AActor*> TargetActors;
 
 	/// 默认播放一次，设置为0或负数表示无限循环播放

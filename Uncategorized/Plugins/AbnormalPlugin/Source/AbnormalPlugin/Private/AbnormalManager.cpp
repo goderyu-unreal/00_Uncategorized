@@ -75,17 +75,27 @@ void AAbnormalManager::IntegrateAllAbnormalTaskInfoToAbnormals_Implementation(TM
 
 void AAbnormalManager::TriggerTask_Implementation(const FString& AbnormalId, const FString& AbnormalTaskName, const TArray<FTransform>& TargetTransforms)
 {
+	// TODO 在Manager中加入相对位置，自产位置数据的判断和处理，统一在这里管理，绑定方法体由Abnormal的Actor自己实现
 	if (auto AbnormalTask = Abnormals.Find(AbnormalTaskName))
 	{
 		for (auto &AbnormalInfo : AbnormalTask->AbnormalsInfo)
 		{
 			auto SpawnedTargetActors = SpawnTargetActor(AbnormalId, TargetTransforms);
-			AbnormalInfo.TargetActors.Append(SpawnedTargetActors);
+			TArray<AActor*> TargetActors;
+			if (AbnormalInfo.bDynamicInputTransform)
+			{
+				TargetActors = SpawnTargetActor(AbnormalId, TargetTransforms);
+			}
+			else
+			{
+				TargetActors = AbnormalInfo.TargetActors;
+			}
+			// AbnormalInfo.TargetActors.Append(SpawnedTargetActors);
 			if (AbnormalInfo.bDynamicGenerateActor)
 			{
 				if (auto Class = AbnormalInfo.AbnormalClass.Get())
 				{
-					SpawnAndBindingAbnormalActorToTargetActors(AbnormalId, Class, AbnormalInfo.TargetActors);
+					SpawnAndBindingAbnormalActorToTargetActors(AbnormalId, Class, TargetActors);
 				}
 				else
 				{
@@ -96,15 +106,14 @@ void AAbnormalManager::TriggerTask_Implementation(const FString& AbnormalId, con
 			{
 				if (AbnormalInfo.AbnormalActor)
 				{
-					// TODO 将逻辑该为传递目标点数组，找到第一个有效元素挂载后返回。
-					if (AbnormalInfo.TargetActors.Num() > 0 && AbnormalInfo.TargetActors.Last())
+					// 将传递目标点数组，找到第一个有效元素挂载后返回。
+					if (TargetActors.Num() > 0)
 					{
-						BindingAbnormalActorToTargetActors(AbnormalId, AbnormalInfo.AbnormalActor, AbnormalInfo.TargetActors.Last());
+						BindingAbnormalActorToTargetActors(AbnormalId, AbnormalInfo.AbnormalActor, TargetActors);
 					}
 					else
 					{
-						UE_LOG(LogAbnormalPlugin, Warning, TEXT("目标点集合没有有效元素"));
-						
+						UE_LOG(LogAbnormalPlugin, Warning, TEXT("目标点集合没有有效元素并且没有动态输入的目标位置信息"));
 					}
 				}
 				else
@@ -133,11 +142,20 @@ void AAbnormalManager::SpawnAndBindingAbnormalActorToTargetActors_Implementation
 }
 
 // TODO 貌似可以和动态生成绑定函数整合成一个函数，不过也不好
-void AAbnormalManager::BindingAbnormalActorToTargetActors_Implementation(const FString& AbnormalId, AAbnormalBase* AbnormalActor, AActor* TargetActor)
+void AAbnormalManager::BindingAbnormalActorToTargetActors_Implementation(const FString& AbnormalId, AAbnormalBase* AbnormalActor, const TArray<AActor*>& TargetActors)
 {
-	auto AttachRule = FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true);
-	AbnormalActor->AttachToActor(TargetActor, AttachRule);
-	OnBindingActorFinished.Broadcast();
+	for (const auto& TargetActor : TargetActors)
+	{
+		// 因为具体的非正常Actor实例只有一个，向TargetActors数组的每一个元素做绑定时，
+		// 最终效果时只绑定到了最后一个有效的TargetActor元素。因此只要绑定成功就退出循环
+		if (TargetActor)
+		{
+			auto AttachRule = FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true);
+			AbnormalActor->AttachToActor(TargetActor, AttachRule);
+			OnBindingActorFinished.Broadcast();
+			break;
+		}
+	}
 }
 
 const TArray<class AActor*> AAbnormalManager::SpawnTargetActor_Implementation(const FString& AbnormalId, const TArray<FTransform>& TargetTransforms)

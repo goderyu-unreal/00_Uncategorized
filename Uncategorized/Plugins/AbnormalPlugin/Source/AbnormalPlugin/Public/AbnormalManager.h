@@ -69,9 +69,9 @@ public:
 	 * @param AbnormalClass 要生成Actor的类
 	 * @param TargetActors 要附加的Actor数组
 	 */
-	void BindingAbnormalActorToTargetActors(const FString& AbnormalId, AAbnormalBase* AbnormalActor, AActor* TargetActor);
+	void BindingAbnormalActorToTargetActors(const FString& AbnormalId, AAbnormalBase* AbnormalActor, const TArray<AActor*>& TargetActors);
 
-	void BindingAbnormalActorToTargetActors_Implementation(const FString& AbnormalId, AAbnormalBase* AbnormalActor, AActor* TargetActor);
+	void BindingAbnormalActorToTargetActors_Implementation(const FString& AbnormalId, AAbnormalBase* AbnormalActor, const TArray<AActor*>& TargetActors);
 
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = Abnormal)
 	/**
