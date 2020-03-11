@@ -8,8 +8,7 @@
 #include "ConfigFileManager.h"
 #include "DataPortManager.generated.h"
 
-// TODO 1.整合关卡内动态生成的通道信息
-// TODO 2.是否添加一个功能，在额外通道信息Actor构造函数中设置标签，一旦管理器生成了权限文件后即可根据标签销毁所有额外通道信息Actor节约资源。
+// TODO 1.是否添加一个功能，在额外通道信息Actor构造函数中设置标签，一旦管理器生成了权限文件后即可根据标签销毁所有额外通道信息Actor节约资源。
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnDataPortInfoFileGenerated, const FString, GeneratedDataPortInfoFileFullPath);
 
