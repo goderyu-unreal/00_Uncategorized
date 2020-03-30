@@ -3,6 +3,15 @@
 
 #include "AbnormalBase.h"
 
+void AAbnormalBase::RegisterMenu_Implementation()
+{
+
+}
+void AAbnormalBase::Process_Implementation()
+{
+
+}
+
 // Sets default values
 AAbnormalBase::AAbnormalBase()
 {

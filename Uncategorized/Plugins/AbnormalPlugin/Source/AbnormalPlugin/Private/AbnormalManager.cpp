@@ -143,7 +143,7 @@ void AAbnormalManager::SpawnAndBindingAbnormalActorToTargetActors_Implementation
 			AbnormalActor->Tags.Emplace(FName(*AbnormalId));
 			AbnormalActor->AttachToActor(TargetActor, AttachRule);
 			// 换成委托，通知已经绑定结束，在播放动画前留一个余地做额外的准备操作
-			OnBindingActorFinished.Broadcast();
+			// OnBindingActorFinished.Broadcast();
 			// AbnormalActor->StartPlaySequence();
 		}
 	}
@@ -160,7 +160,7 @@ void AAbnormalManager::BindingAbnormalActorToTargetActors_Implementation(const F
 		{
 			auto AttachRule = FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true);
 			AbnormalActor->AttachToActor(TargetActor, AttachRule);
-			OnBindingActorFinished.Broadcast();
+			// OnBindingActorFinished.Broadcast();
 			break;
 		}
 	}
@@ -194,6 +194,156 @@ bool AAbnormalManager::DestroyAbnormalActorsById_Implementation(const FString& A
 		}
 	}
 	return bAllDestroy;
+}
+
+void AAbnormalManager::UpdateAbnormalInfoFromString_Implementation(const FString & AbnormalInfo)
+{
+	TArray<FString> AbnormalInfos;
+	AbnormalInfo.ParseIntoArray(AbnormalInfos, L";");
+
+	for (const auto& EachAbnormal : AbnormalInfos) {
+		TArray<FString> MessageArray;
+		EachAbnormal.ParseIntoArray(MessageArray, L",");
+		if (MessageArray.Num() < 2)
+			return;
+		FTransform TargetTransform = FTransform::Identity;
+		if (MessageArray[0] == "Add")
+		{
+			if (MessageArray.Num() != 8 && MessageArray.Num() != 11)
+				return;
+			//如果生成对象成功，则处理
+
+			FVector TargetLocation = FVector::ZeroVector;
+			TargetLocation.X = FCString::Atof(*MessageArray[2]);
+			TargetLocation.Y = FCString::Atof(*MessageArray[3]);
+			TargetLocation.Z = FCString::Atof(*MessageArray[4]);
+			FIntVector OriginLocation = GetWorld()->OriginLocation;
+			TargetLocation.X -= OriginLocation.X;
+			TargetLocation.Y -= OriginLocation.Y;
+			TargetLocation.Z -= OriginLocation.Z;
+			TargetTransform.SetLocation(TargetLocation);
+			FRotator TargetRotator = FRotator::ZeroRotator;
+			TargetRotator.Roll = FCString::Atof(*MessageArray[5]);
+			TargetRotator.Pitch = FCString::Atof(*MessageArray[6]);
+			TargetRotator.Yaw = FCString::Atof(*MessageArray[7]);
+			TargetTransform.SetRotation(TargetRotator.Quaternion());
+			if (MessageArray.Num() == 11)
+			{
+				TargetLocation.X = FCString::Atof(*MessageArray[8]);
+				TargetLocation.Y = FCString::Atof(*MessageArray[9]);
+				TargetLocation.Z = FCString::Atof(*MessageArray[10]);
+				TargetTransform.SetScale3D(TargetLocation);
+			}
+			OnAddAbnormal.Broadcast("1", MessageArray[1], TargetTransform);
+		}
+		if (MessageArray[0] == "AddByID")
+		{
+			if (MessageArray.Num() < 4)
+				return;
+			int CoordinateSystem = FCString::Atoi(*MessageArray[1]);
+			FString AbnormalTaskId = MessageArray[2];
+			FString AbnormalTaskName = MessageArray[3];
+			if (MessageArray.Num() >= 5)
+			{
+				//如果生成对象成功，则处理
+				FVector TargetLocation = FVector::ZeroVector;
+				if (MessageArray.Num() >= 5)
+				{
+					TargetLocation.X = FCString::Atof(*MessageArray[4]);
+				}
+				if (MessageArray.Num() >= 6)
+				{
+					TargetLocation.Y = FCString::Atof(*MessageArray[5]);
+				}
+				if (MessageArray.Num() >= 7)
+				{
+					TargetLocation.Z = FCString::Atof(*MessageArray[6]);
+				}
+				if (CoordinateSystem != 0)
+				{
+					TargetLocation.Y *= -1;
+					TargetLocation *= 100;
+				}
+				FIntVector OriginLocation = GetWorld()->OriginLocation;
+				TargetLocation.X -= OriginLocation.X;
+				TargetLocation.Y -= OriginLocation.Y;
+				TargetLocation.Z -= OriginLocation.Z;
+				TargetTransform.SetLocation(TargetLocation);
+				FRotator TargetRotator = FRotator::ZeroRotator;
+				if (MessageArray.Num() >= 8)
+				{
+					TargetRotator.Roll = FCString::Atof(*MessageArray[7]);
+				}
+				if (MessageArray.Num() >= 9)
+				{
+					TargetRotator.Pitch = FCString::Atof(*MessageArray[8]);
+				}
+				if (MessageArray.Num() >= 10)
+				{
+					TargetRotator.Yaw = FCString::Atof(*MessageArray[9]);
+				}
+				TargetTransform.SetRotation(FQuat(TargetRotator));
+				FVector TargetScale = FVector(1.0, 1.0, 1.0);
+				if (MessageArray.Num() >= 11)
+				{
+					TargetScale.X = FCString::Atof(*MessageArray[10]);
+				}
+				if (MessageArray.Num() >= 12)
+				{
+					TargetScale.Y = FCString::Atof(*MessageArray[11]);
+				}
+				if (MessageArray.Num() >= 13)
+				{
+					TargetScale.Z = FCString::Atof(*MessageArray[12]);
+				}
+				TargetTransform.SetScale3D(TargetScale);
+			}
+			OnAddAbnormal.Broadcast(AbnormalTaskId, AbnormalTaskName, TargetTransform);
+		}
+		if (MessageArray[0] == "DeleteByID")
+		{
+			FString AbnormalTaskId = MessageArray[1];
+			OnDeleteAbnormal.Broadcast(AbnormalTaskId);
+		}
+	}
+	//auto Reader = TJsonReaderFactory<>::Create(AbnormalInfo);
+	//TSharedPtr<FJsonObject> Json;
+	//if (FJsonSerializer::Deserialize(Reader, Json)) {
+	//	auto AbnormalInfos = Json->GetArrayField(L"AbnormalInfos");
+
+	//	for (auto& Info : AbnormalInfos)
+	//	{
+	//		//x 20200103 查问题 Broadcast是一个单词，cast的c是小写。多播委托是DECLARE_DYNAMIC_MULTICAST_DELEGATE_，DYNAMIC单词拼错了...
+	//		auto i = Info->AsObject();
+	//		if (i.IsValid()) {
+	//			auto id = i->GetIntegerField(L"id");
+	//			auto type = i->GetStringField(L"type");
+	//			auto pos = i->GetStringField(L"pos");
+	//			TArray<FString> _;
+	//			pos.ParseIntoArray(_, L" ");
+	//			FTransform TargetTransform;
+	//			if (_.Num() >= 3)
+	//			{
+	//				auto Translation = FVector(FCString::Atof(*_[0]), FCString::Atof(*_[1]), FCString::Atof(*_[2]));
+	//				TargetTransform.SetLocation(Translation);
+	//			}
+	//			if (_.Num() >= 6)
+	//			{
+	//				auto Rotation = FRotator(FCString::Atof(*_[4]), FCString::Atof(*_[5]), FCString::Atof(*_[3]));
+	//				TargetTransform.SetRotation(Rotation.Quaternion());
+	//			}
+	//			if (_.Num() >= 9)
+	//			{
+	//				auto Scale = FVector(FCString::Atof(*_[6]), FCString::Atof(*_[7]), FCString::Atof(*_[8]));
+	//				TargetTransform.SetScale3D(Scale);
+	//			}
+	//			auto Tuple = MakeTuple(type, TargetTransform);
+	//			TempInfos.Add(id, Tuple);
+	//			OnAbnormalInfoChange.Broadcast(id, type, TargetTransform);
+	//		}
+	//	}
+	//	//DealWithOneAbnormalTask(TempInfos);
+	//}
 }
 
 void AAbnormalManager::PostEditChangeProperty(struct FPropertyChangedEvent &PropertyChangedEvent)
