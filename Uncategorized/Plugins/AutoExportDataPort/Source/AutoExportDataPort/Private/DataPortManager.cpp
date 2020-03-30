@@ -46,7 +46,7 @@ void ADataPortManager::AddDataPort(const FString& Name, const EDataPortType Type
 	}
 }
 
-void ADataPortManager::ExportDataPortsInfo(const FString& SavedFileName)
+void ADataPortManager::ExportDataPortsInfo(/* const FString& SavedFileName */)
 {
 	FString ExportFileLevel = ConfigFileManager.GetValue(TEXT("ExportFileLevel"), TEXT("ExtraInfo"));
 	FString FileContent;
@@ -65,7 +65,8 @@ void ADataPortManager::ExportDataPortsInfo(const FString& SavedFileName)
 	}
 	
 	/// 按通道名字母正序排序
-	DataPortsInfo.KeyStableSort([](const FString& A, const FString& B) {
+	// UE4.18没有KeyStableSort，改用KeySort
+	DataPortsInfo.KeySort([](const FString& A, const FString& B) {
 		return A < B;
 	});
 
@@ -85,12 +86,21 @@ void ADataPortManager::ExportDataPortsInfo(const FString& SavedFileName)
 		}
 		FileContent += "\r\n";
 	}
-	FString RelativePath = ConfigFileManager.GetValue(TEXT("DataPortInfoFileRalativePath"), TEXT("ProjectConfig"));
+	FString RelativePath = ConfigFileManager.GetValue(TEXT("DataPortInfoFileRelativePath"), TEXT("ProjectConfig"));
 	if (RelativePath.IsEmpty())
 	{
 		RelativePath = "Config/AutoExportDataPort/";
 	}
-	FString FilePath = FPaths::ConvertRelativePathToFull(FPaths::ProjectDir()) + RelativePath + SavedFileName + ".csv";
+
+	FString FileName = ConfigFileManager.GetValue(TEXT("ModuleName"), TEXT("ProjectConfig"));
+	if (FileName.IsEmpty())
+	{
+		UE_LOG(LogAutoExportDataPort, Warning, 
+			TEXT("配置文件中获取到的ProjectConfig分段下的ModuleName名字为空，请及时检查。为不影响正常生成通道权限信息表，已给定默认模块名VRADP"));
+		FileName = FString(TEXT("VRADP"));
+	}
+
+	FString FilePath = FPaths::ConvertRelativePathToFull(FPaths::ProjectContentDir()) + RelativePath + FileName + ".csv";
 	FFileHelper::SaveStringToFile(FileContent, *FilePath, FFileHelper::EEncodingOptions::ForceUTF8, &IFileManager::Get(), EFileWrite::FILEWRITE_NoReplaceExisting);
 	if (EmptyDataPortNameCount > 0)
 	{
@@ -134,7 +144,7 @@ void ADataPortManager::IntegrateDataPorts_Implementation()
 		UE_LOG(LogAutoExportDataPort, Warning, TEXT("配置文件中当前项目类型为空，已默认分配为前视景机类型，请及时修改"));
 		ProjectDeployCategory = "QSJ";
 	}
-	FString FilePath = FPaths::ConvertRelativePathToFull(FPaths::ProjectConfigDir()) + "AutoExportDataPort/" + ProjectDeployCategory + ".csv"; 
+	FString FilePath = FPaths::ConvertRelativePathToFull(FPaths::ProjectContentDir() + "Config/AutoExportDataPort/" + ProjectDeployCategory + ".csv");
 	FString FileString;
 	FFileHelper::LoadFileToString(OUT FileString, *FilePath);
 	TArray<FString> DataPortInfoStringArray;
