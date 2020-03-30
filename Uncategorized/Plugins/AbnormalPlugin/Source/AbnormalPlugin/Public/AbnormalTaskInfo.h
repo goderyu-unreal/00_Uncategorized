@@ -43,13 +43,22 @@ struct FAbnormalInfo
 	TArray<AActor*> TargetActors;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Abnormal, AdvancedDisplay)
-	/// 默认播放一次，设置为0或负数表示无限循环播放
-	int32 PlayCount = 1;
+	/// 增量偏移(除了设定外部指定/关卡内指定/自定义的位置，再附加一个Transform增量)
+	/// 例如本来设置的位置是(10,10,10)，旋转是(0,0,90)，缩放是(1,1,1)，
+	/// 现在设置AdditiveTransform的值为(-5,-5,-5),(90,0,0),(1,1,1)，
+	/// 则最终结果为(5,5,5),(90,0,90),(2,2,2)
+	FTransform AdditiveTransform;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Abnormal, AdvancedDisplay)
+	float PlayRate = 1.0f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Abnormal, AdvancedDisplay)
 	/// 设置延迟播放的时间
 	float DelaySeconds;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Abnormal, AdvancedDisplay)
+	/// 默认播放一次，设置为0或负数表示无限循环播放
+	int32 PlayCount = 1;
 };
 
 USTRUCT(BlueprintType)
@@ -69,8 +78,8 @@ public:
 	// Sets default values for this actor's properties
 	AAbnormalTaskInfo();
 
-	/// 非正常任务设置，Key填写非正常任务名，要确保和外部发送的非正常任务名保持一致
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Abnormal)
+	/// 非正常任务设置，Key填写非正常任务名，要确保和外部发送的非正常任务名保持一致
 	TMap<FString, FAbnormalsInfo> ExtraAbnormals;
 
 protected:
