@@ -38,7 +38,8 @@ struct FAbnormalInfo
 	/// 外部提供：将由下发非正常任务的外部程序提供位置信息。例如外部发送落石非正常并发送了一个世界坐标
 	ETargetTransformSource TargetTransformSource;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Abnormal, meta = (EditCondition = "TargetTransformSource == ETargetTransformSource::TTS_FROMTARGETACTORS"))
+	// UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Abnormal, meta = (EditCondition = "TargetTransformSource == ETargetTransformSource::TTS_FROMTARGETACTORS"))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Abnormal, meta = (EnumCondition = 0))
 	/// 欲挂载的目标点，一个单位的非正常动画可以挂载到多个目标点上
 	TArray<AActor*> TargetActors;
 
@@ -49,10 +50,10 @@ struct FAbnormalInfo
 	/// 则最终结果为(5,5,5),(90,0,90),(2,2,2)
 	FTransform AdditiveTransform;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Abnormal, AdvancedDisplay)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Abnormal, AdvancedDisplay, meta = (EnumCondition = 1))
 	float PlayRate = 1.0f;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Abnormal, AdvancedDisplay)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Abnormal, AdvancedDisplay, meta = (EnumCondition = 2))
 	/// 设置延迟播放的时间
 	float DelaySeconds;
 
