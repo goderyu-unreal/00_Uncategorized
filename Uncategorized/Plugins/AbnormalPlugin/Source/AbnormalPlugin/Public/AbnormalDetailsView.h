@@ -24,5 +24,6 @@ public:
 	/** End IPropertyTypeCustomization interface */
 protected:
 	EVisibility ArePropertiesVisible(const int32 VisibleType) const;
-	TSharedPtr<IPropertyHandle> EnumProperty;
+	TSharedPtr<IPropertyHandle> TargetTransformSourceProperty;
+	TSharedPtr<IPropertyHandle> AbnormalActorTypeProperty;
 };

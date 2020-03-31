@@ -83,15 +83,15 @@ void AAbnormalManager::TriggerTask_Implementation(const FString& AbnormalId, con
 			TArray<AActor*> TargetActors;
 			switch (AbnormalInfo.TargetTransformSource)
 			{
-			case ETargetTransformSource::TTS_FROMSELF:
+			case ETargetTransformSource::TTS_FromSelf:
 				// 执行非正常Actor的自定义绑定			
 				// TODO 确定生成非正常Actor和绑定的时机，先后顺序，别让TriggerTask太冗余
 				break;
-			case ETargetTransformSource::TTS_FROMTARGETACTORS:
+			case ETargetTransformSource::TTS_FromTargetActors:
 				// 由管理来执行绑定，将Actor绑定到指定目标点
 				TargetActors = AbnormalInfo.TargetActors;
 				break;
-			case ETargetTransformSource::TTS_FROMOUTSIDE:
+			case ETargetTransformSource::TTS_FromOutside:
 				// 由管理来执行绑定，先将外部提供的数据生成目标点，再将Actor绑定到目标点
 				TargetActors = SpawnTargetActor(AbnormalId, TargetTransforms);
 				break;
@@ -99,7 +99,7 @@ void AAbnormalManager::TriggerTask_Implementation(const FString& AbnormalId, con
 				break;
 			}
 
-			if (AbnormalInfo.bDynamicGenerateActor)
+			if (AbnormalInfo.AbnormalActorType == EAbnormalActorType::AAT_DynamicGenerate)
 			{
 				if (auto Class = AbnormalInfo.AbnormalClass.Get())
 				{
@@ -110,7 +110,7 @@ void AAbnormalManager::TriggerTask_Implementation(const FString& AbnormalId, con
 					UE_LOG(LogAbnormalPlugin, Warning, TEXT("填表信息中没有为%s非正常条目指定非正常Actor"), *AbnormalTaskName);
 				}
 			}
-			else
+			else if (AbnormalInfo.AbnormalActorType == EAbnormalActorType::AAT_ExistedInstance)
 			{
 				if (AbnormalInfo.AbnormalActor)
 				{
