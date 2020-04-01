@@ -25,3 +25,17 @@ void AAbnormalTaskInfo::Tick(float DeltaTime)
 
 }
 
+
+#if WITH_EDITOR
+void AAbnormalTaskInfo::PostEditChangeProperty(struct FPropertyChangedEvent &PropertyChangedEvent)
+{
+	auto PropertyName = PropertyChangedEvent.Property != nullptr ? PropertyChangedEvent.Property->GetFName() : NAME_None;
+
+	if (PropertyName == GET_MEMBER_NAME_CHECKED(AAbnormalTaskInfo, ExtraAbnormals))
+	{
+		Abnormals.KeySort([](const FString &A, const FString &B) {
+			return A < B;
+		});
+	}
+}
+#endif // WITH_EDITOR

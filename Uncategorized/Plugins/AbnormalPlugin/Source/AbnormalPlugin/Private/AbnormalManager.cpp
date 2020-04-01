@@ -1,6 +1,5 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-
 #include "AbnormalManager.h"
 #include "AbnormalPlugin.h"
 #include "EngineUtils.h"
@@ -9,14 +8,11 @@
 #include "Engine/World.h"
 #include "Kismet/GameplayStatics.h"
 
-
-
 // Sets default values
 AAbnormalManager::AAbnormalManager()
 {
- 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
+	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
-
 }
 
 AAbnormalManager *AAbnormalManager::GetInstance(const UObject *WorldContextObject)
@@ -37,20 +33,20 @@ AAbnormalManager *AAbnormalManager::GetInstance(const UObject *WorldContextObjec
 	return Instance;
 }
 
-void AAbnormalManager::IntegrateAllAbnormalTaskInfoToAbnormals_Implementation(TMap<FString, FAbnormalsInfo>& AbnormalsMap)
+void AAbnormalManager::IntegrateAllAbnormalTaskInfoToAbnormals_Implementation(TMap<FString, FAbnormalsInfo> &AbnormalsMap)
 {
 	// 整合填表的非正常任务信息
-	TArray<AActor*> FindedActors; 
+	TArray<AActor *> FindedActors;
 	// 这样获取到的Actor，只有和第一个参数，this处于同一个关卡流的才行。
 	// 使用加载关卡实例或者打开关卡的方法加载的关卡里面的Actor获取不到的。
 	// FIXME 如何完整地获取非正常任务填表信息？
 	UGameplayStatics::GetAllActorsOfClass(this, AAbnormalTaskInfo::StaticClass(), OUT FindedActors);
-	for (const auto& Actor : FindedActors)
+	for (const auto &Actor : FindedActors)
 	{
 		if (auto AbnormalTaskInfo = Cast<AAbnormalTaskInfo>(Actor))
 		{
 			// 获取填表的非正常任务信息，并在这里检测是否在整合到Manager的Abnormals时发现已存在，打印出两者所在关卡，供用户修改
-			for(const auto& AbnormalTask : AbnormalTaskInfo->ExtraAbnormals)
+			for (const auto &AbnormalTask : AbnormalTaskInfo->ExtraAbnormals)
 			{
 				// 如果Manager的表中已经存在该条填表中的非正常任务
 				if (AbnormalsMap.Contains(AbnormalTask.Key))
@@ -73,7 +69,7 @@ void AAbnormalManager::IntegrateAllAbnormalTaskInfoToAbnormals_Implementation(TM
 	}
 }
 
-void AAbnormalManager::TriggerTask_Implementation(const FString& AbnormalId, const FString& AbnormalTaskName, const TArray<FTransform>& TargetTransforms)
+void AAbnormalManager::TriggerTask_Implementation(const FString &AbnormalId, const FString &AbnormalTaskName, const TArray<FTransform> &TargetTransforms)
 {
 	// // TODO 在Manager中加入相对位置，自产位置数据的判断和处理，统一在这里管理，绑定方法体由Abnormal的Actor自己实现
 	// if (auto AbnormalTask = Abnormals.Find(AbnormalTaskName))
@@ -84,7 +80,7 @@ void AAbnormalManager::TriggerTask_Implementation(const FString& AbnormalId, con
 	// 		switch (AbnormalInfo.TargetTransformSource)
 	// 		{
 	// 		case ETargetTransformSource::TTS_FromSelf:
-	// 			// 执行非正常Actor的自定义绑定			
+	// 			// 执行非正常Actor的自定义绑定
 	// 			// TODO 确定生成非正常Actor和绑定的时机，先后顺序，别让TriggerTask太冗余
 	// 			break;
 	// 		case ETargetTransformSource::TTS_FromTargetActors:
@@ -134,7 +130,7 @@ void AAbnormalManager::TriggerTask_Implementation(const FString& AbnormalId, con
 
 	if (auto AbnormalTask = Abnormals.Find(AbnormalTaskName))
 	{
-		for (auto& AbnormalInfo : AbnormalTask->AbnormalsInfo)
+		for (auto &AbnormalInfo : AbnormalTask->AbnormalsInfo)
 		{
 			// 执行流程：
 			// 1.根据填表信息，确定挂载点
@@ -166,12 +162,11 @@ void AAbnormalManager::TriggerTask_Implementation(const FString& AbnormalId, con
 							AbnormalActors[Index]->StartPlaySequence();
 						}
 					}
-
 				}
 				else if (AbnormalInfo.TargetTransformSource == ETargetTransformSource::TTS_FromTargetActors)
 				{
 					// 从填表处接收位置信息，指定TargetActors
-					for (auto& TargetActor : AbnormalInfo.TargetActors)
+					for (auto &TargetActor : AbnormalInfo.TargetActors)
 					{
 						if (!TargetActor)
 						{
@@ -198,7 +193,7 @@ void AAbnormalManager::TriggerTask_Implementation(const FString& AbnormalId, con
 							AbnormalActors[Index]->PreSet();
 							AbnormalActors[Index]->StartPlaySequence();
 						}
-					}	
+					}
 				}
 				else if (AbnormalInfo.TargetTransformSource == ETargetTransformSource::TTS_FromSelf)
 				{
@@ -219,7 +214,6 @@ void AAbnormalManager::TriggerTask_Implementation(const FString& AbnormalId, con
 								UE_LOG(LogAbnormalPlugin, Warning, TEXT("非正常Actor的自定义挂载操作失败"));
 							}
 						}
-
 					}
 					else
 					{
@@ -230,14 +224,12 @@ void AAbnormalManager::TriggerTask_Implementation(const FString& AbnormalId, con
 				{
 					UE_LOG(LogAbnormalPlugin, Warning, TEXT("未指定挂载点"));
 				}
-				
 			}
 			else if (AbnormalInfo.AbnormalActorType == EAbnormalActorType::AAT_ExistedInstance)
 			{
 				if (AbnormalInfo.TargetTransformSource == ETargetTransformSource::TTS_FromOutside)
 				{
 					// 从外部接收位置信息，生成TargetActor
-
 				}
 				else if (AbnormalInfo.TargetTransformSource == ETargetTransformSource::TTS_FromTargetActors)
 				{
@@ -250,7 +242,7 @@ void AAbnormalManager::TriggerTask_Implementation(const FString& AbnormalId, con
 				else
 				{
 					UE_LOG(LogAbnormalPlugin, Warning, TEXT("未指定挂载点"));
-				}	
+				}
 			}
 			else
 			{
@@ -260,23 +252,23 @@ void AAbnormalManager::TriggerTask_Implementation(const FString& AbnormalId, con
 	}
 }
 
-const TArray<AActor*> AAbnormalManager::SpawnTargetActors(const FString& AbnormalId, const TArray<FTransform>& TargetTransforms)
+const TArray<AActor *> AAbnormalManager::SpawnTargetActors(const FString &AbnormalId, const TArray<FTransform> &TargetTransforms)
 {
-	TArray<class AActor*> TargetActors;
-	for (const auto& TargetTransform : TargetTransforms)
+	TArray<class AActor *> TargetActors;
+	for (const auto &TargetTransform : TargetTransforms)
 	{
-		if(auto TargetActor = GetWorld()->SpawnActor<ATargetPoint>(ATargetPoint::StaticClass(), TargetTransform, FActorSpawnParameters()))
+		if (auto TargetActor = GetWorld()->SpawnActor<ATargetPoint>(ATargetPoint::StaticClass(), TargetTransform, FActorSpawnParameters()))
 		{
 			TargetActor->Tags.Emplace(FName(*AbnormalId));
 			TargetActors.Emplace(TargetActor);
 		}
 	}
-	return TargetActors;	
+	return TargetActors;
 }
 
-const TArray<AAbnormalBase*> AAbnormalManager::SpawnAbnormalActors(const FString& AbnormalId, UClass* AbnormalClass, int32 Num)
+const TArray<AAbnormalBase *> AAbnormalManager::SpawnAbnormalActors(const FString &AbnormalId, UClass *AbnormalClass, int32 Num)
 {
-	TArray<AAbnormalBase*> AbnormalActors;
+	TArray<AAbnormalBase *> AbnormalActors;
 	for (auto Index = 0; Index < Num; ++Index)
 	{
 		if (auto AbnormalActor = GetWorld()->SpawnActor<AAbnormalBase>(AbnormalClass, FVector::ZeroVector, FRotator::ZeroRotator, FActorSpawnParameters()))
@@ -288,12 +280,12 @@ const TArray<AAbnormalBase*> AAbnormalManager::SpawnAbnormalActors(const FString
 	return AbnormalActors;
 }
 
-void AAbnormalManager::SpawnAndBindingAbnormalActorToTargetActors_Implementation(const FString& AbnormalId, UClass* AbnormalClass, const TArray<class AActor*>& TargetActors)
+void AAbnormalManager::SpawnAndBindingAbnormalActorToTargetActors_Implementation(const FString &AbnormalId, UClass *AbnormalClass, const TArray<class AActor *> &TargetActors)
 {
 	auto AttachRule = FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true);
-	for (const auto& TargetActor : TargetActors)
+	for (const auto &TargetActor : TargetActors)
 	{
-		if(auto AbnormalActor = GetWorld()->SpawnActor<AAbnormalBase>(AbnormalClass, FVector::ZeroVector, FRotator::ZeroRotator, FActorSpawnParameters()))
+		if (auto AbnormalActor = GetWorld()->SpawnActor<AAbnormalBase>(AbnormalClass, FVector::ZeroVector, FRotator::ZeroRotator, FActorSpawnParameters()))
 		{
 			AbnormalActor->Tags.Emplace(FName(*AbnormalId));
 			AbnormalActor->AttachToActor(TargetActor, AttachRule);
@@ -305,9 +297,9 @@ void AAbnormalManager::SpawnAndBindingAbnormalActorToTargetActors_Implementation
 }
 
 // TODO 貌似可以和动态生成绑定函数整合成一个函数，不过也不好
-void AAbnormalManager::BindingAbnormalActorToTargetActors_Implementation(const FString& AbnormalId, AAbnormalBase* AbnormalActor, const TArray<AActor*>& TargetActors)
+void AAbnormalManager::BindingAbnormalActorToTargetActors_Implementation(const FString &AbnormalId, AAbnormalBase *AbnormalActor, const TArray<AActor *> &TargetActors)
 {
-	for (const auto& TargetActor : TargetActors)
+	for (const auto &TargetActor : TargetActors)
 	{
 		// 因为具体的非正常Actor实例只有一个，向TargetActors数组的每一个元素做绑定时，
 		// 最终效果时只绑定到了最后一个有效的TargetActor元素。因此只要绑定成功就退出循环
@@ -321,12 +313,12 @@ void AAbnormalManager::BindingAbnormalActorToTargetActors_Implementation(const F
 	}
 }
 
-const TArray<class AActor*> AAbnormalManager::SpawnTargetActor_Implementation(const FString& AbnormalId, const TArray<FTransform>& TargetTransforms)
+const TArray<class AActor *> AAbnormalManager::SpawnTargetActor_Implementation(const FString &AbnormalId, const TArray<FTransform> &TargetTransforms)
 {
-	TArray<class AActor*> TargetActors;
-	for (const auto& TargetTransform : TargetTransforms)
+	TArray<class AActor *> TargetActors;
+	for (const auto &TargetTransform : TargetTransforms)
 	{
-		if(auto TargetActor = GetWorld()->SpawnActor<ATargetPoint>(ATargetPoint::StaticClass(), TargetTransform, FActorSpawnParameters()))
+		if (auto TargetActor = GetWorld()->SpawnActor<ATargetPoint>(ATargetPoint::StaticClass(), TargetTransform, FActorSpawnParameters()))
 		{
 			TargetActor->Tags.Emplace(FName(*AbnormalId));
 			TargetActors.Emplace(TargetActor);
@@ -335,13 +327,12 @@ const TArray<class AActor*> AAbnormalManager::SpawnTargetActor_Implementation(co
 	return TargetActors;
 }
 
-
-bool AAbnormalManager::DestroyAbnormalActorsById_Implementation(const FString& AbnormalId)
+bool AAbnormalManager::DestroyAbnormalActorsById_Implementation(const FString &AbnormalId)
 {
-	TArray<AActor*> ActorsWithAbnormalIdTag;
+	TArray<AActor *> ActorsWithAbnormalIdTag;
 	UGameplayStatics::GetAllActorsWithTag(this, FName(*AbnormalId), OUT ActorsWithAbnormalIdTag);
 	bool bAllDestroy = true;
-	for (auto& Actor : ActorsWithAbnormalIdTag)
+	for (auto &Actor : ActorsWithAbnormalIdTag)
 	{
 		if (Actor)
 		{
@@ -351,12 +342,13 @@ bool AAbnormalManager::DestroyAbnormalActorsById_Implementation(const FString& A
 	return bAllDestroy;
 }
 
-void AAbnormalManager::UpdateAbnormalInfoFromString_Implementation(const FString & AbnormalInfo)
+void AAbnormalManager::UpdateAbnormalInfoFromString_Implementation(const FString &AbnormalInfo)
 {
 	TArray<FString> AbnormalInfos;
 	AbnormalInfo.ParseIntoArray(AbnormalInfos, L";");
 
-	for (const auto& EachAbnormal : AbnormalInfos) {
+	for (const auto &EachAbnormal : AbnormalInfos)
+	{
 		TArray<FString> MessageArray;
 		EachAbnormal.ParseIntoArray(MessageArray, L",");
 		if (MessageArray.Num() < 2)
@@ -501,89 +493,20 @@ void AAbnormalManager::UpdateAbnormalInfoFromString_Implementation(const FString
 	//}
 }
 
+#if WITH_EDITOR
 void AAbnormalManager::PostEditChangeProperty(struct FPropertyChangedEvent &PropertyChangedEvent)
 {
 	auto PropertyName = PropertyChangedEvent.Property != nullptr ? PropertyChangedEvent.Property->GetFName() : NAME_None;
 
 	if (PropertyName == GET_MEMBER_NAME_CHECKED(AAbnormalManager, Abnormals))
 	{
-		UE_LOG(LogAbnormalPlugin, Error, TEXT("Trigger Property Changed"));
+		Abnormals.KeySort([](const FString &A, const FString &B) {
+			return A < B;
+		});
+		// UE_LOG(LogAbnormalPlugin, Error, TEXT("Trigger Property Changed"));
 	}
-	// if (PropertyName == GET_MEMBER_NAME_CHECKED(AAbnormalManager, bDynamic))
-	// {
-	// 	if (bDynamic)
-	// 	{
-	// 		//显示V1，隐藏V2
-	// 		for (TFieldIterator<UProperty> ProIt(AAbnormalManager::StaticClass()); ProIt; ++ProIt)
-	// 		{
-	// 			auto Pro = *ProIt;
-	// 			if (Pro->GetNameCPP().Equals("V1"))
-	// 			{
-	// 				// auto BoolPro = Cast<UBoolProperty>(Pro);
-	// 				// if (BoolPro)
-	// 				// {
-	// 				// 	V1FlagValue = BoolPro->GetPropertyFlags();
-	// 				// 	BoolPro->SetPropertyFlags(CPF_Edit);
-	// 				// 	BoolPro->SetMetaData("Category", TEXT("Abnormal"));
-	// 				// }
-	// 				// V1FlagValue = Pro->GetPropertyFlags();
-	// 				Pro->SetPropertyFlags(CPF_Edit);
-	// 				Pro->SetMetaData("Category", TEXT("Abnormal"));
-	// 				continue;
-	// 			}
-	// 			else if (Pro->GetNameCPP().Equals("V2"))
-	// 			{
-	// 				// auto BoolPro = Cast<UBoolProperty>(Pro);
-	// 				// if (BoolPro)
-	// 				// {
-	// 				// 	V1FlagValue = BoolPro->GetPropertyFlags(); //6755469234274817
-	// 				// 	BoolPro->ClearPropertyFlags(CPF_Edit);
-	// 				// 	BoolPro->RemoveMetaData("Category");
-	// 				// }
-	// 				// V2FlagValue = Pro->GetPropertyFlags();
-	// 				Pro->ClearPropertyFlags(CPF_Edit);
-	// 				Pro->RemoveMetaData("Category");
-	// 				continue;
-	// 			}
-	// 		}
-	// 	}
-	// 	else
-	// 	{
-	// 		//隐藏V1，显示V2
-	// 		for (TFieldIterator<UProperty> ProIt(AAbnormalManager::StaticClass()); ProIt; ++ProIt)
-	// 		{
-	// 			auto Pro = *ProIt;
-	// 			if (Pro->GetNameCPP().Equals("V1"))
-	// 			{
-	// 				// auto BoolPro = Cast<UBoolProperty>(Pro);
-	// 				// if (BoolPro)
-	// 				// {
-	// 				// 	V1FlagValue = BoolPro->GetPropertyFlags(); //6755469234274817
-	// 				// 	BoolPro->ClearPropertyFlags(CPF_Edit);
-	// 				// }
-	// 				// V1FlagValue = Pro->GetPropertyFlags(); //6755469234274817
-	// 				Pro->ClearPropertyFlags(CPF_Edit);
-	// 				Pro->RemoveMetaData("Category");
-	// 				continue;
-	// 			}
-	// 			else if (Pro->GetNameCPP().Equals("V2"))
-	// 			{
-	// 				// auto BoolPro = Cast<UBoolProperty>(Pro);
-	// 				// if (BoolPro)
-	// 				// {
-	// 				// 	V2FlagValue = BoolPro->GetPropertyFlags(); //6755469234274816
-	// 				// 	BoolPro->SetPropertyFlags(CPF_Edit);
-	// 				// 	BoolPro->SetMetaData("Category", TEXT("Abnormal"));
-	// 				// }
-	// 				// V2FlagValue = Pro->GetPropertyFlags(); //6755469234274816
-	// 				Pro->SetPropertyFlags(CPF_Edit);
-	// 				Pro->SetMetaData("Category", TEXT("Abnormal"));
-	// 				continue;
-	// 			}
-	// 		}
-	// 	}
-	// }
 }
+#endif // WITH_EDITOR
 
 // Called when the game starts or when spawned
 void AAbnormalManager::BeginPlay()
@@ -593,7 +516,6 @@ void AAbnormalManager::BeginPlay()
 	// 验证了一半，关卡流被加载进来的已经都能获取到了，目前并不会测试没有被加载的
 	IntegrateAllAbnormalTaskInfoToAbnormals(OUT Abnormals);
 	Super::BeginPlay();
-	
 }
 
 // Called every frame
@@ -606,6 +528,4 @@ void AAbnormalManager::Tick(float DeltaTime)
 	// 	DoOnce = false;
 	// }
 	Super::Tick(DeltaTime);
-
 }
-

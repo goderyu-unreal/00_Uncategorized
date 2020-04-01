@@ -93,6 +93,10 @@ public:
 	/// 非正常任务设置，Key填写非正常任务名，要确保和外部发送的非正常任务名保持一致
 	TMap<FString, FAbnormalsInfo> ExtraAbnormals;
 
+#if WITH_EDITOR
+	virtual void PostEditChangeProperty(struct FPropertyChangedEvent& PropertyChangedEvent) override;
+#endif // WITH_EDITOR
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
