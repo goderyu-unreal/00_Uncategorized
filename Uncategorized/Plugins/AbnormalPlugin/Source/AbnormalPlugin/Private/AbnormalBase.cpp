@@ -12,6 +12,26 @@ void AAbnormalBase::Process_Implementation()
 
 }
 
+void AAbnormalBase::SetAbnormalId(const FString& TaskId)
+{
+	AbnormalId = TaskId;
+}
+
+const FString& AAbnormalBase::GetAbnormalId()
+{
+	return AbnormalId;
+}
+
+AActor* AAbnormalBase::RegisterTargetActor_Implementation()
+{
+	return nullptr;
+}
+
+TArray<AActor*> AAbnormalBase::RegisterTargetActors_Implementation()
+{
+	return TArray<AActor*>();
+}
+
 // Sets default values
 AAbnormalBase::AAbnormalBase()
 {

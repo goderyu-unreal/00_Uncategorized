@@ -16,17 +16,17 @@ public:
 	AAbnormalBase();
 
 	/// 播放Actor中ActorSequenceComponent组件包含的动画
-	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = Abnormal)
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "Abnormal | Base")
 	void StartPlaySequence();
 
-	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = Abnormal)
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "Abnormal | Base")
 	/**
 	 * @brief 在播放动画前的设置。执行流程：
 	 * 绑定非正常Actor到TargetActors --> 预设置 --> 播放序列
 	 */
 	void PreSet();
 	
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = Abnormal)
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Abnormal | Base")
 	/**
 	 * @brief 注册交互式菜单，第一版为弹出式菜单
 	 * 
@@ -34,7 +34,7 @@ public:
 	void RegisterMenu();
 	void RegisterMenu_Implementation();
 	
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = Abnormal)
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Abnormal | Base")
 	/**
 	 * @brief 触发处理流程，弹出菜单中的默认处理按钮的点击事件中会调用该函数
 	 * 
@@ -42,6 +42,35 @@ public:
 	void Process();
 	void Process_Implementation();
 	
+	UFUNCTION(BlueprintCallable, Category = "Abnormal | Base")
+	/**
+	 * @brief 获取该Actor的非正常Id，用于删除/隐藏用
+	 * 
+	 * @return const FString& 非正常任务Id
+	 */
+	const FString& GetAbnormalId();
+
+	UFUNCTION(BlueprintCallable, Category = "Abnormal | Base")
+	/**
+	 * @brief 设置非正常Actor属于哪一条非正常任务
+	 * 
+	 * @param TaskId 外部发来的Id
+	 */
+	void SetAbnormalId(const FString& TaskId);
+
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Abnormal | Base")
+	AActor* RegisterTargetActor();
+	AActor* RegisterTargetActor_Implementation();
+
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Abnormal | Base")
+	TArray<AActor*> RegisterTargetActors();
+	TArray<AActor*> RegisterTargetActors_Implementation();
+
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "Abnormal | Base")
+	bool CustomAttachToTargetActor();
+
+private:
+	FString AbnormalId;
 
 protected:
 	// Called when the game starts or when spawned

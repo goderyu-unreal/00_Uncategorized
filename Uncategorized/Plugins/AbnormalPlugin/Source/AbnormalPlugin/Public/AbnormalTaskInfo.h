@@ -33,11 +33,11 @@ struct FAbnormalInfo
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Abnormal, meta = (AbnormalActorType = 16))
 	/// 未拖入场景中的非正常Actor类，只能指定AbnormalBase类及其子类
-	TSubclassOf<AAbnormalBase> AbnormalClass;
+	TSubclassOf<class AAbnormalBase> AbnormalClass;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Abnormal, meta = (AbnormalActorType = 32))
 	/// 场景中已存在的非正常Actor，具体类型的非正常，如铁路维修人员施工非正常Actor、石头滚落Actor
-	class AAbnormalBase* AbnormalActor;
+	AAbnormalBase* AbnormalActor;
 
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Abnormal)

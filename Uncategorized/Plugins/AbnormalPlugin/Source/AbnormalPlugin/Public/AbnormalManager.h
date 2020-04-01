@@ -50,6 +50,11 @@ public:
 
 	void TriggerTask_Implementation(const FString& AbnormalId, const FString& AbnormalTaskName, const TArray<FTransform>& TargetTransforms);
 
+	UFUNCTION(BlueprintCallable, Category = Abnormal)
+	const TArray<AActor*> SpawnTargetActors(const FString& AbnormalId, const TArray<FTransform>& TargetTransforms);
+
+	UFUNCTION(BlueprintCallable, Category = Abnormal)
+	const TArray<AAbnormalBase*> SpawnAbnormalActors(const FString& AbnormalId, UClass* AbnormalClass, int32 Num = 1);
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = Abnormal)
 	/**
 	 * @brief 根据TargetActors的个数生成AbnormalClass指定类的Actor

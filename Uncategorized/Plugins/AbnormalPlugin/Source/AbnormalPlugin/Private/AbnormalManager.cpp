@@ -75,62 +75,187 @@ void AAbnormalManager::IntegrateAllAbnormalTaskInfoToAbnormals_Implementation(TM
 
 void AAbnormalManager::TriggerTask_Implementation(const FString& AbnormalId, const FString& AbnormalTaskName, const TArray<FTransform>& TargetTransforms)
 {
-	// TODO 在Manager中加入相对位置，自产位置数据的判断和处理，统一在这里管理，绑定方法体由Abnormal的Actor自己实现
+	// // TODO 在Manager中加入相对位置，自产位置数据的判断和处理，统一在这里管理，绑定方法体由Abnormal的Actor自己实现
+	// if (auto AbnormalTask = Abnormals.Find(AbnormalTaskName))
+	// {
+	// 	for (auto &AbnormalInfo : AbnormalTask->AbnormalsInfo)
+	// 	{
+	// 		TArray<AActor*> TargetActors;
+	// 		switch (AbnormalInfo.TargetTransformSource)
+	// 		{
+	// 		case ETargetTransformSource::TTS_FromSelf:
+	// 			// 执行非正常Actor的自定义绑定			
+	// 			// TODO 确定生成非正常Actor和绑定的时机，先后顺序，别让TriggerTask太冗余
+	// 			break;
+	// 		case ETargetTransformSource::TTS_FromTargetActors:
+	// 			// 由管理来执行绑定，将Actor绑定到指定目标点
+	// 			TargetActors = AbnormalInfo.TargetActors;
+	// 			break;
+	// 		case ETargetTransformSource::TTS_FromOutside:
+	// 			// 由管理来执行绑定，先将外部提供的数据生成目标点，再将Actor绑定到目标点
+	// 			TargetActors = SpawnTargetActor(AbnormalId, TargetTransforms);
+	// 			break;
+	// 		default:
+	// 			break;
+	// 		}
+
+	// 		if (AbnormalInfo.AbnormalActorType == EAbnormalActorType::AAT_DynamicGenerate)
+	// 		{
+	// 			if (auto Class = AbnormalInfo.AbnormalClass.Get())
+	// 			{
+	// 				SpawnAndBindingAbnormalActorToTargetActors(AbnormalId, Class, TargetActors);
+	// 			}
+	// 			else
+	// 			{
+	// 				UE_LOG(LogAbnormalPlugin, Warning, TEXT("填表信息中没有为%s非正常条目指定非正常Actor"), *AbnormalTaskName);
+	// 			}
+	// 		}
+	// 		else if (AbnormalInfo.AbnormalActorType == EAbnormalActorType::AAT_ExistedInstance)
+	// 		{
+	// 			if (AbnormalInfo.AbnormalActor)
+	// 			{
+	// 				// 将传递目标点数组，找到第一个有效元素挂载后返回。
+	// 				if (TargetActors.Num() > 0)
+	// 				{
+	// 					BindingAbnormalActorToTargetActors(AbnormalId, AbnormalInfo.AbnormalActor, TargetActors);
+	// 				}
+	// 				else
+	// 				{
+	// 					UE_LOG(LogAbnormalPlugin, Warning, TEXT("目标点集合没有有效元素并且没有动态输入的目标位置信息"));
+	// 				}
+	// 			}
+	// 			else
+	// 			{
+	// 				UE_LOG(LogAbnormalPlugin, Warning, TEXT("填表信息中没有为%s非正常条目指定具体的非正常Actor"), *AbnormalTaskName);
+	// 			}
+	// 		}
+	// 	}
+	// }
+
 	if (auto AbnormalTask = Abnormals.Find(AbnormalTaskName))
 	{
-		for (auto &AbnormalInfo : AbnormalTask->AbnormalsInfo)
+		for (auto& AbnormalInfo : AbnormalTask->AbnormalsInfo)
 		{
-			TArray<AActor*> TargetActors;
-			switch (AbnormalInfo.TargetTransformSource)
-			{
-			case ETargetTransformSource::TTS_FromSelf:
-				// 执行非正常Actor的自定义绑定			
-				// TODO 确定生成非正常Actor和绑定的时机，先后顺序，别让TriggerTask太冗余
-				break;
-			case ETargetTransformSource::TTS_FromTargetActors:
-				// 由管理来执行绑定，将Actor绑定到指定目标点
-				TargetActors = AbnormalInfo.TargetActors;
-				break;
-			case ETargetTransformSource::TTS_FromOutside:
-				// 由管理来执行绑定，先将外部提供的数据生成目标点，再将Actor绑定到目标点
-				TargetActors = SpawnTargetActor(AbnormalId, TargetTransforms);
-				break;
-			default:
-				break;
-			}
-
+			// 执行流程：
+			// 1.根据填表信息，确定挂载点
+			// 2.为每一个挂载点生成一个非正常Actor并附加
 			if (AbnormalInfo.AbnormalActorType == EAbnormalActorType::AAT_DynamicGenerate)
 			{
-				if (auto Class = AbnormalInfo.AbnormalClass.Get())
+				if (AbnormalInfo.TargetTransformSource == ETargetTransformSource::TTS_FromOutside)
 				{
-					SpawnAndBindingAbnormalActorToTargetActors(AbnormalId, Class, TargetActors);
-				}
-				else
-				{
-					UE_LOG(LogAbnormalPlugin, Warning, TEXT("填表信息中没有为%s非正常条目指定非正常Actor"), *AbnormalTaskName);
-				}
-			}
-			else if (AbnormalInfo.AbnormalActorType == EAbnormalActorType::AAT_ExistedInstance)
-			{
-				if (AbnormalInfo.AbnormalActor)
-				{
-					// 将传递目标点数组，找到第一个有效元素挂载后返回。
-					if (TargetActors.Num() > 0)
+					// 从外部接收位置信息，生成TargetActors
+					AbnormalInfo.TargetActors = SpawnTargetActors(AbnormalId, TargetTransforms);
+					// 生成非正常Actor
+					auto AbnormalActors = SpawnAbnormalActors(AbnormalId, AbnormalInfo.AbnormalClass, AbnormalInfo.TargetActors.Num());
+					// 附加
+					if (AbnormalActors.Num() != AbnormalInfo.TargetActors.Num())
 					{
-						BindingAbnormalActorToTargetActors(AbnormalId, AbnormalInfo.AbnormalActor, TargetActors);
+						UE_LOG(LogAbnormalPlugin, Warning, TEXT("动态生成的非正常Actor和挂载点的数量不一致，无法进行一对一挂载"));
 					}
 					else
 					{
-						UE_LOG(LogAbnormalPlugin, Warning, TEXT("目标点集合没有有效元素并且没有动态输入的目标位置信息"));
+						auto AttachRule = FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true);
+						for (auto Index = 0; Index < AbnormalActors.Num(); ++Index)
+						{
+							AbnormalActors[Index]->AttachToActor(AbnormalInfo.TargetActors[Index], AttachRule);
+							AbnormalActors[Index]->AddActorLocalOffset(AbnormalInfo.AdditiveTransform.GetTranslation());
+							AbnormalActors[Index]->AddActorLocalRotation(AbnormalInfo.AdditiveTransform.GetRotation());
+							AbnormalActors[Index]->SetActorScale3D(AbnormalInfo.AdditiveTransform.GetScale3D());
+							AbnormalActors[Index]->PreSet();
+							AbnormalActors[Index]->StartPlaySequence();
+						}
+					}
+					
+				}
+				else if (AbnormalInfo.TargetTransformSource == ETargetTransformSource::TTS_FromTargetActors)
+				{
+					// 从填表处接收位置信息，指定TargetActors
+				}
+				else if (AbnormalInfo.TargetTransformSource == ETargetTransformSource::TTS_FromSelf)
+				{
+					// 自己内部指定TargetActors，针对此情况，后续也不会对其进行统一的附加操作
+					auto AbnormalActors = SpawnAbnormalActors(AbnormalId, AbnormalInfo.AbnormalClass);
+					if (AbnormalActors.Num() > 0)
+					{
+						if (auto AbnormalActor = AbnormalActors.Pop())
+						{
+							if (AbnormalActor->CustomAttachToTargetActor())
+							{
+								UE_LOG(LogAbnormalPlugin, Log, TEXT("已经执行非正常Actor的自定义挂载操作"));
+								AbnormalActor->PreSet();
+								AbnormalActor->StartPlaySequence();
+							}
+							else
+							{
+								UE_LOG(LogAbnormalPlugin, Warning, TEXT("非正常Actor的自定义挂载操作失败"));
+							}
+						}
+
+					}
+					else
+					{
+						UE_LOG(LogAbnormalPlugin, Warning, TEXT("位置信息来源为自身提供，动态生成单个非正常Actor的操作失败，因此后续操作都将跳过"));
 					}
 				}
 				else
 				{
-					UE_LOG(LogAbnormalPlugin, Warning, TEXT("填表信息中没有为%s非正常条目指定具体的非正常Actor"), *AbnormalTaskName);
+					UE_LOG(LogAbnormalPlugin, Warning, TEXT("未指定挂载点"));
 				}
+				
+			}
+			else if (AbnormalInfo.AbnormalActorType == EAbnormalActorType::AAT_ExistedInstance)
+			{
+				if (AbnormalInfo.TargetTransformSource == ETargetTransformSource::TTS_FromOutside)
+				{
+					// 从外部接收位置信息，生成TargetActor
+				}
+				else if (AbnormalInfo.TargetTransformSource == ETargetTransformSource::TTS_FromTargetActors)
+				{
+					// 从填表处接收位置信息，指定TargetActor
+				}
+				else if (AbnormalInfo.TargetTransformSource == ETargetTransformSource::TTS_FromSelf)
+				{
+					// 自己内部指定TargetActor，针对此情况，后续也不会对其进行统一的附加操作
+				}
+				else
+				{
+					UE_LOG(LogAbnormalPlugin, Warning, TEXT("未指定挂载点"));
+				}	
+			}
+			else
+			{
+				UE_LOG(LogAbnormalPlugin, Warning, TEXT("未指定非正常Actor"));
 			}
 		}
 	}
+}
+
+const TArray<AActor*> AAbnormalManager::SpawnTargetActors(const FString& AbnormalId, const TArray<FTransform>& TargetTransforms)
+{
+	TArray<class AActor*> TargetActors;
+	for (const auto& TargetTransform : TargetTransforms)
+	{
+		if(auto TargetActor = GetWorld()->SpawnActor<ATargetPoint>(ATargetPoint::StaticClass(), TargetTransform, FActorSpawnParameters()))
+		{
+			TargetActor->Tags.Emplace(FName(*AbnormalId));
+			TargetActors.Emplace(TargetActor);
+		}
+	}
+	return TargetActors;	
+}
+
+const TArray<AAbnormalBase*> AAbnormalManager::SpawnAbnormalActors(const FString& AbnormalId, UClass* AbnormalClass, int32 Num)
+{
+	TArray<AAbnormalBase*> AbnormalActors;
+	for (auto Index = 0; Index < Num; ++Index)
+	{
+		if (auto AbnormalActor = GetWorld()->SpawnActor<AAbnormalBase>(AbnormalClass, FVector::ZeroVector, FRotator::ZeroRotator, FActorSpawnParameters()))
+		{
+			AbnormalActor->Tags.Emplace(FName(*AbnormalId));
+			AbnormalActors.Emplace(AbnormalActor);
+		}
+	}
+	return AbnormalActors;
 }
 
 void AAbnormalManager::SpawnAndBindingAbnormalActorToTargetActors_Implementation(const FString& AbnormalId, UClass* AbnormalClass, const TArray<class AActor*>& TargetActors)
