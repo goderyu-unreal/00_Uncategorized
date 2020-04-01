@@ -158,18 +158,47 @@ void AAbnormalManager::TriggerTask_Implementation(const FString& AbnormalId, con
 						for (auto Index = 0; Index < AbnormalActors.Num(); ++Index)
 						{
 							AbnormalActors[Index]->AttachToActor(AbnormalInfo.TargetActors[Index], AttachRule);
-							AbnormalActors[Index]->AddActorLocalOffset(AbnormalInfo.AdditiveTransform.GetTranslation());
-							AbnormalActors[Index]->AddActorLocalRotation(AbnormalInfo.AdditiveTransform.GetRotation());
-							AbnormalActors[Index]->SetActorScale3D(AbnormalInfo.AdditiveTransform.GetScale3D());
+							AbnormalActors[Index]->SetActorRelativeTransform(AbnormalInfo.AdditiveTransform);
+							// AbnormalActors[Index]->AddActorLocalOffset(AbnormalInfo.AdditiveTransform.GetTranslation());
+							// AbnormalActors[Index]->AddActorLocalRotation(AbnormalInfo.AdditiveTransform.GetRotation());
+							// AbnormalActors[Index]->SetActorScale3D(AbnormalInfo.AdditiveTransform.GetScale3D());
 							AbnormalActors[Index]->PreSet();
 							AbnormalActors[Index]->StartPlaySequence();
 						}
 					}
-					
+
 				}
 				else if (AbnormalInfo.TargetTransformSource == ETargetTransformSource::TTS_FromTargetActors)
 				{
 					// 从填表处接收位置信息，指定TargetActors
+					for (auto& TargetActor : AbnormalInfo.TargetActors)
+					{
+						if (!TargetActor)
+						{
+							AbnormalInfo.TargetActors.Remove(TargetActor);
+						}
+					}
+					// 生成非正常Actor
+					auto AbnormalActors = SpawnAbnormalActors(AbnormalId, AbnormalInfo.AbnormalClass, AbnormalInfo.TargetActors.Num());
+					// 附加
+					if (AbnormalActors.Num() != AbnormalInfo.TargetActors.Num())
+					{
+						UE_LOG(LogAbnormalPlugin, Warning, TEXT("动态生成的非正常Actor和挂载点的数量不一致，无法进行一对一挂载"));
+					}
+					else
+					{
+						auto AttachRule = FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true);
+						for (auto Index = 0; Index < AbnormalActors.Num(); ++Index)
+						{
+							AbnormalActors[Index]->AttachToActor(AbnormalInfo.TargetActors[Index], AttachRule);
+							AbnormalActors[Index]->SetActorRelativeTransform(AbnormalInfo.AdditiveTransform);
+							// AbnormalActors[Index]->AddActorLocalOffset(AbnormalInfo.AdditiveTransform.GetTranslation());
+							// AbnormalActors[Index]->AddActorLocalRotation(AbnormalInfo.AdditiveTransform.GetRotation());
+							// AbnormalActors[Index]->SetActorScale3D(AbnormalInfo.AdditiveTransform.GetScale3D());
+							AbnormalActors[Index]->PreSet();
+							AbnormalActors[Index]->StartPlaySequence();
+						}
+					}	
 				}
 				else if (AbnormalInfo.TargetTransformSource == ETargetTransformSource::TTS_FromSelf)
 				{
@@ -208,6 +237,7 @@ void AAbnormalManager::TriggerTask_Implementation(const FString& AbnormalId, con
 				if (AbnormalInfo.TargetTransformSource == ETargetTransformSource::TTS_FromOutside)
 				{
 					// 从外部接收位置信息，生成TargetActor
+
 				}
 				else if (AbnormalInfo.TargetTransformSource == ETargetTransformSource::TTS_FromTargetActors)
 				{
