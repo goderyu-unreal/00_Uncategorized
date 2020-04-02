@@ -56,11 +56,14 @@ public:
 	/**
 	 * @brief 生成非正常Actor，为其追加值为AbnormalId的Tag
 	 * 
-	 * @param AbnormalInfo 填表信息中的单项
-	 * @param AbnormalId 外部发来的非正常任务Id
+	 * @param AbnormalInfo 填表信息
+	 * @param AbnormalId 非正常任务Id
+	 * @param AbnormalTaskName 非正常任务名，打印日志时使用
+	 * @return true 注册成功
+	 * @return false 注册出现问题
 	 */
-	void RegisterAbnormalActor(FAbnormalInfo& AbnormalInfo, const FString& AbnormalId);
-	inline void RegisterAbnormalActor_Implementation(FAbnormalInfo& AbnormalInfo, const FString& AbnormalId);
+	bool RegisterAbnormalActor(FAbnormalInfo& AbnormalInfo, const FString& AbnormalId, const FString& AbnormalTaskName);
+	inline bool RegisterAbnormalActor_Implementation(FAbnormalInfo& AbnormalInfo, const FString& AbnormalId, const FString& AbnormalTaskName);
 
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = Abnormal)
 	/**
@@ -70,8 +73,19 @@ public:
 	 * @param AbnormalId 外部发来的非正常任务Id
 	 * @param TargetTransform 变换信息
 	 */
-	void RegisterTargetActor(FAbnormalInfo& AbnormalInfo, const FString& AbnormalId, const FTransform& TargetTransform);
-	inline void RegisterTargetActor_Implementation(FAbnormalInfo& AbnormalInfo, const FString& AbnormalId, const FTransform& TargetTransform);
+
+	/**
+	 * @brief 在TargetTransform处生成Tag为AbnormalId的TargetActor
+	 * 
+	 * @param AbnormalInfo 填表信息中的单项
+	 * @param AbnormalId 外部发来的非正常任务Id
+	 * @param TargetTransform 变换信息
+	 * @param AbnormalTaskName 非正常任务名，打印日志时使用
+	 * @return true 注册成功
+	 * @return false 注册出现问题
+	 */
+	bool RegisterTargetActor(FAbnormalInfo& AbnormalInfo, const FString& AbnormalId, const FTransform& TargetTransform, const FString& AbnormalTaskName);
+	inline bool RegisterTargetActor_Implementation(FAbnormalInfo& AbnormalInfo, const FString& AbnormalId, const FTransform& TargetTransform, const FString& AbnormalTaskName);
 
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = Abnormal)
 	/**

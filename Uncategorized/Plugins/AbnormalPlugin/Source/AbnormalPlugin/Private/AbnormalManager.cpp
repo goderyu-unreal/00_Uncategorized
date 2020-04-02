@@ -71,9 +71,9 @@ void AAbnormalManager::TriggerTask_Implementation(const FString& AbnormalId, con
 		{
 			// 执行流程：
 			// 1.确定非正常Actor
-			RegisterAbnormalActor(AbnormalInfo, AbnormalId);
+			if (RegisterAbnormalActor(AbnormalInfo, AbnormalId, AbnormalTaskName) == false) continue;
 			// 2.确定挂载点Actor
-			RegisterTargetActor(AbnormalInfo, AbnormalId, TargetTransform);
+			if (RegisterTargetActor(AbnormalInfo, AbnormalId, TargetTransform, AbnormalTaskName) == false) continue;
 			// 3.执行挂载操作
 			AttachAbnormalToTarget(AbnormalInfo);
 			// 4.设置相对偏移
@@ -88,14 +88,14 @@ void AAbnormalManager::TriggerTask_Implementation(const FString& AbnormalId, con
 	}
 }
 
-void AAbnormalManager::RegisterAbnormalActor_Implementation(FAbnormalInfo& AbnormalInfo, const FString& AbnormalId)
+bool AAbnormalManager::RegisterAbnormalActor_Implementation(FAbnormalInfo& AbnormalInfo, const FString& AbnormalId, const FString& AbnormalTaskName)
 {
 	if (AbnormalInfo.AbnormalActorType == EAbnormalActorType::AAT_DynamicGenerate)
 	{
 		if (AbnormalInfo.AbnormalClass == nullptr)
 		{
-			UE_LOG(LogAbnormalPlugin, Error, TEXT("填表中未指定有效的非正常蓝图类资源，因此后续操作均不执行，请及时检查"));
-			return;
+			UE_LOG(LogAbnormalPlugin, Error, TEXT("填表中未指定有效的非正常蓝图类资源，因此后续操作均不执行，请及时检查，填表的非正常任务名为%s"), *AbnormalTaskName);
+			return false;
 		}
 
 		if (auto AbnormalActor = SpawnAbnormalActor(AbnormalId, AbnormalInfo.AbnormalClass, FActorSpawnParameters()))
@@ -104,7 +104,8 @@ void AAbnormalManager::RegisterAbnormalActor_Implementation(FAbnormalInfo& Abnor
 		}
 		else
 		{
-			UE_LOG(LogAbnormalPlugin, Warning, TEXT("动态生成非正常Actor失败，指针为空，后续操作均不执行，请重试"));
+			UE_LOG(LogAbnormalPlugin, Warning, TEXT("动态生成非正常Actor失败，指针为空，后续操作均不执行，请重试，填表的非正常任务名为%s"), *AbnormalTaskName);
+			return false;
 		}
 	}
 	else if (AbnormalInfo.AbnormalActorType == EAbnormalActorType::AAT_ExistedInstance)
@@ -112,19 +113,19 @@ void AAbnormalManager::RegisterAbnormalActor_Implementation(FAbnormalInfo& Abnor
 		// TODO 保留初始状态，以后再次使用该资源时能重置状态，保持效果一致
 		if (AbnormalInfo.AbnormalActor == nullptr)
 		{
-			UE_LOG(LogAbnormalPlugin, Error, TEXT("填表中未指定关卡中放置的有效非正常Actor，因此后续操作均不执行，请及时检查"));
-			return;
+			UE_LOG(LogAbnormalPlugin, Error, TEXT("填表中未指定关卡中放置的有效非正常Actor，因此后续操作均不执行，请及时检查，填表的非正常任务名为%s"), *AbnormalTaskName);
+			return false;
 		}
-
 	}
 	else
 	{
-		UE_LOG(LogAbnormalPlugin, Warning, TEXT("填表中选择的非正常类型为无，请及时检查，防止外部下发非正常任务时没任何效果"));
-		return;
+		UE_LOG(LogAbnormalPlugin, Warning, TEXT("填表中选择的非正常类型为无，请及时检查，防止外部下发非正常任务时没任何效果，填表的非正常任务名为%s"), *AbnormalTaskName);
+		return false;
 	}
+	return true;
 }
 
-void AAbnormalManager::RegisterTargetActor_Implementation(FAbnormalInfo& AbnormalInfo, const FString& AbnormalId, const FTransform& TargetTransform)
+bool AAbnormalManager::RegisterTargetActor_Implementation(FAbnormalInfo& AbnormalInfo, const FString& AbnormalId, const FTransform& TargetTransform, const FString& AbnormalTaskName)
 {
 	if (AbnormalInfo.TargetTransformSource == ETargetTransformSource::TTS_FromOutside)
 	{
@@ -137,10 +138,11 @@ void AAbnormalManager::RegisterTargetActor_Implementation(FAbnormalInfo& Abnorma
 	{
 		if (AbnormalInfo.TargetActor == nullptr)
 		{
-			UE_LOG(LogAbnormalPlugin, Warning, TEXT("填表中未指定有效的挂载点Actor，因此后续操作均不执行，请及时检查"));
-			return;
+			UE_LOG(LogAbnormalPlugin, Warning, TEXT("填表中未指定有效的挂载点Actor，因此后续操作均不执行，请及时检查，填表的非正常任务名为%s"), *AbnormalTaskName);
+			return false;
 		}
 	}
+	return true;
 }
 
 void AAbnormalManager::AttachAbnormalToTarget_Implementation(FAbnormalInfo& AbnormalInfo)
