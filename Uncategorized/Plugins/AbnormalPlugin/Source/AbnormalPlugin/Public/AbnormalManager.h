@@ -123,6 +123,7 @@ public:
 	 * @return false 只要有一个没有销毁成功返回false
 	 */
 	bool DestroyAbnormalActorsById(const FString& AbnormalId);
+	// TODO 为非正常Actor基类添加一个属性，是否是动态生成的标识，用于外部删除项点时隐藏指定实例
 	bool DestroyAbnormalActorsById_Implementation(const FString& AbnormalId);
 
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = Abnormal)

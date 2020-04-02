@@ -116,6 +116,10 @@ bool AAbnormalManager::RegisterAbnormalActor_Implementation(FAbnormalInfo& Abnor
 			UE_LOG(LogAbnormalPlugin, Error, TEXT("填表中未指定关卡中放置的有效非正常Actor，因此后续操作均不执行，请及时检查，填表的非正常任务名为%s"), *AbnormalTaskName);
 			return false;
 		}
+		else
+		{
+			AbnormalInfo.AbnormalActor->bDynamicGenerated = false;
+		}
 	}
 	else
 	{
@@ -215,9 +219,21 @@ bool AAbnormalManager::DestroyAbnormalActorsById_Implementation(const FString &A
 	bool bAllDestroy = true;
 	for (auto &Actor : ActorsWithAbnormalIdTag)
 	{
-		if (Actor)
+		if (auto AbnormalActor = Cast<AAbnormalBase>(Actor))
 		{
-			bAllDestroy &= Actor->Destroy();
+			if (AbnormalActor->bDynamicGenerated)
+			{
+				bAllDestroy &= Actor->Destroy();
+			}
+			else
+			{
+				// TODO 以后再支持指定实例被删除时的重置资源初始化状态并隐藏等待下一次使用的功能
+				AbnormalActor->SetHidden(true);
+			}
+		}
+		else
+		{
+			UE_LOG(LogAbnormalPlugin, Warning, TEXT("清除非正常任务相关资源时转型失败"));
 		}
 	}
 	return bAllDestroy;

@@ -24,6 +24,9 @@ public:
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Abnormal | Base")
 	bool bOnTrainAbnormal = false;
 
+	bool bDynamicGenerated = true;
+
+
 	/// 播放Actor中ActorSequenceComponent组件包含的动画
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "Abnormal | Base")
 	void StartPlaySequence();
