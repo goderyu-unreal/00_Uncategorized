@@ -7,8 +7,8 @@
 #include "AbnormalTaskInfo.h"
 #include "AbnormalManager.generated.h"
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FOnAddAbnormal, const FString&, AbnormalTaskId, const FString&, AbnormalTaskName, const FTransform&, TargetTransform);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnDeleteAbnormal, const FString&, AbnormalTaskId);
+// DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FOnAddAbnormal, const FString&, AbnormalTaskId, const FString&, AbnormalTaskName, const FTransform&, TargetTransform);
+// DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnDeleteAbnormal, const FString&, AbnormalTaskId);
 
 UCLASS()
 class ABNORMALPLUGIN_API AAbnormalManager : public AActor
@@ -21,11 +21,11 @@ public:
 	/// 非正常任务设置，Key填写非正常任务名，要确保和外部发送的非正常任务名保持一致
 	TMap<FString, FAbnormalsInfo> Abnormals;
 
-	UPROPERTY(BlueprintAssignable, Category = Abnormal)
-	FOnAddAbnormal OnAddAbnormal;
+	// UPROPERTY(BlueprintAssignable, Category = Abnormal)
+	// FOnAddAbnormal OnAddAbnormal;
 
-	UPROPERTY(BlueprintAssignable, Category = Abnormal)
-	FOnDeleteAbnormal OnDeleteAbnormal;
+	// UPROPERTY(BlueprintAssignable, Category = Abnormal)
+	// FOnDeleteAbnormal OnDeleteAbnormal;
 
 public:
 

@@ -235,35 +235,35 @@ void AAbnormalManager::UpdateAbnormalInfoFromString_Implementation(const FString
 		if (MessageArray.Num() < 2)
 			return;
 		FTransform TargetTransform = FTransform::Identity;
-		if (MessageArray[0] == "Add")
-		{
-			if (MessageArray.Num() != 8 && MessageArray.Num() != 11)
-				return;
-			//如果生成对象成功，则处理
+		// if (MessageArray[0] == "Add")
+		// {
+		// 	if (MessageArray.Num() != 8 && MessageArray.Num() != 11)
+		// 		return;
+		// 	//如果生成对象成功，则处理
 
-			FVector TargetLocation = FVector::ZeroVector;
-			TargetLocation.X = FCString::Atof(*MessageArray[2]);
-			TargetLocation.Y = FCString::Atof(*MessageArray[3]);
-			TargetLocation.Z = FCString::Atof(*MessageArray[4]);
-			FIntVector OriginLocation = GetWorld()->OriginLocation;
-			TargetLocation.X -= OriginLocation.X;
-			TargetLocation.Y -= OriginLocation.Y;
-			TargetLocation.Z -= OriginLocation.Z;
-			TargetTransform.SetLocation(TargetLocation);
-			FRotator TargetRotator = FRotator::ZeroRotator;
-			TargetRotator.Roll = FCString::Atof(*MessageArray[5]);
-			TargetRotator.Pitch = FCString::Atof(*MessageArray[6]);
-			TargetRotator.Yaw = FCString::Atof(*MessageArray[7]);
-			TargetTransform.SetRotation(TargetRotator.Quaternion());
-			if (MessageArray.Num() == 11)
-			{
-				TargetLocation.X = FCString::Atof(*MessageArray[8]);
-				TargetLocation.Y = FCString::Atof(*MessageArray[9]);
-				TargetLocation.Z = FCString::Atof(*MessageArray[10]);
-				TargetTransform.SetScale3D(TargetLocation);
-			}
-			OnAddAbnormal.Broadcast("1", MessageArray[1], TargetTransform);
-		}
+		// 	FVector TargetLocation = FVector::ZeroVector;
+		// 	TargetLocation.X = FCString::Atof(*MessageArray[2]);
+		// 	TargetLocation.Y = FCString::Atof(*MessageArray[3]);
+		// 	TargetLocation.Z = FCString::Atof(*MessageArray[4]);
+		// 	FIntVector OriginLocation = GetWorld()->OriginLocation;
+		// 	TargetLocation.X -= OriginLocation.X;
+		// 	TargetLocation.Y -= OriginLocation.Y;
+		// 	TargetLocation.Z -= OriginLocation.Z;
+		// 	TargetTransform.SetLocation(TargetLocation);
+		// 	FRotator TargetRotator = FRotator::ZeroRotator;
+		// 	TargetRotator.Roll = FCString::Atof(*MessageArray[5]);
+		// 	TargetRotator.Pitch = FCString::Atof(*MessageArray[6]);
+		// 	TargetRotator.Yaw = FCString::Atof(*MessageArray[7]);
+		// 	TargetTransform.SetRotation(TargetRotator.Quaternion());
+		// 	if (MessageArray.Num() == 11)
+		// 	{
+		// 		TargetLocation.X = FCString::Atof(*MessageArray[8]);
+		// 		TargetLocation.Y = FCString::Atof(*MessageArray[9]);
+		// 		TargetLocation.Z = FCString::Atof(*MessageArray[10]);
+		// 		TargetTransform.SetScale3D(TargetLocation);
+		// 	}
+		// 	TriggerTask("1", MessageArray[1], TargetTransform);
+		// }
 		if (MessageArray[0] == "AddByID")
 		{
 			if (MessageArray.Num() < 4)
@@ -326,12 +326,12 @@ void AAbnormalManager::UpdateAbnormalInfoFromString_Implementation(const FString
 				}
 				TargetTransform.SetScale3D(TargetScale);
 			}
-			OnAddAbnormal.Broadcast(AbnormalTaskId, AbnormalTaskName, TargetTransform);
+			TriggerTask(AbnormalTaskId, AbnormalTaskName, TargetTransform);
 		}
 		if (MessageArray[0] == "DeleteByID")
 		{
 			FString AbnormalTaskId = MessageArray[1];
-			OnDeleteAbnormal.Broadcast(AbnormalTaskId);
+			DestroyAbnormalActorsById(AbnormalTaskId);
 		}
 	}
 	//auto Reader = TJsonReaderFactory<>::Create(AbnormalInfo);
