@@ -3,7 +3,6 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameFramework/Actor.h"
 #include "AbnormalBase.h"
 #include "AbnormalTaskInfo.h"
 #include "AbnormalManager.generated.h"
@@ -46,53 +45,31 @@ public:
 	 * @param AbnormalTaskName 任务名，用来和Abnormals中的键对应
 	 * @param TargetTransforms 位置信息，用来生成TargetPoint
 	 */
-	void TriggerTask(const FString& AbnormalId, const FString& AbnormalTaskName, const TArray<FTransform>& TargetTransforms);
+	void TriggerTask(const FString& AbnormalId, const FString& AbnormalTaskName, const FTransform& TargetTransform);
 
-	void TriggerTask_Implementation(const FString& AbnormalId, const FString& AbnormalTaskName, const TArray<FTransform>& TargetTransforms);
+	void TriggerTask_Implementation(const FString& AbnormalId, const FString& AbnormalTaskName, const FTransform& TargetTransform);
 
-	UFUNCTION(BlueprintCallable, Category = Abnormal)
-	const TArray<AActor*> SpawnTargetActors(const FString& AbnormalId, const TArray<FTransform>& TargetTransforms);
-
-	UFUNCTION(BlueprintCallable, Category = Abnormal)
-	const TArray<AAbnormalBase*> SpawnAbnormalActors(const FString& AbnormalId, UClass* AbnormalClass, int32 Num = 1);
-	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = Abnormal)
 	/**
-	 * @brief 根据TargetActors的个数生成AbnormalClass指定类的Actor
-	 * 生成的Actor依次附加到TargetActor上
-	 * 
-	 * @param AbnormalId 任务ID，生成Actor时添加Tag，用于删除Actor时索引 
-	 * @param AbnormalClass 要生成Actor的类
-	 * @param TargetActors 要附加的Actor数组
-	 */
-	void SpawnAndBindingAbnormalActorToTargetActors(const FString& AbnormalId, UClass* AbnormalClass, const TArray<class AActor*>& TargetActors);
-
-	void SpawnAndBindingAbnormalActorToTargetActors_Implementation(const FString& AbnormalId, UClass* AbnormalClass, const TArray<class AActor*>& TargetActors);
-
-	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = Abnormal)
-	/**
-	 * @brief 根据TargetActors的个数生成AbnormalClass指定类的Actor
-	 * 生成的Actor依次附加到TargetActor上
-	 * 
-	 * @param AbnormalId 任务ID，生成Actor时添加Tag，用于删除Actor时索引 
-	 * @param AbnormalClass 要生成Actor的类
-	 * @param TargetActors 要附加的Actor数组
-	 */
-	void BindingAbnormalActorToTargetActors(const FString& AbnormalId, AAbnormalBase* AbnormalActor, const TArray<AActor*>& TargetActors);
-
-	void BindingAbnormalActorToTargetActors_Implementation(const FString& AbnormalId, AAbnormalBase* AbnormalActor, const TArray<AActor*>& TargetActors);
-
-	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = Abnormal)
-	/**
-	 * @brief 根据TargetTransforms在每一个Transform生成一个ATargetPoint
-	 * 并为每一个Actor设置值为AbnormalId的Tag
+	 * @brief 根据TargetTransform生成一个ATargetPoint对象
+	 * 为其设置值为AbnormalId的Tag
 	 * 
 	 * @param AbnormalId 
-	 * @param TargetTransforms 
-	 * @return const TArray<class AActor*> 生成的Actor数组
+	 * @param TargetTransform 
+	 * @param SpawnParameters 
+	 * @return AActor* 
 	 */
-	const TArray<class AActor*> SpawnTargetActor(const FString& AbnormalId, const TArray<FTransform>& TargetTransforms);
+	AActor* SpawnTargetActor(const FString& AbnormalId, const FTransform& TargetTransform, const FActorSpawnParameters& SpawnParameters) const;
 
-	const TArray<class AActor*> SpawnTargetActor_Implementation(const FString& AbnormalId, const TArray<FTransform>& TargetTransforms);
+	/**
+	 * @brief 根据指定的非正常类生成Actor，位置为默认的Transform
+	 * 为其设置值为AbnormalId的Tag
+	 * 
+	 * @param AbnormalId 
+	 * @param AbnormalClass 
+	 * @param SpawnParameters 
+	 * @return AAbnormalBase* 
+	 */
+	AAbnormalBase* SpawnAbnormalActor(const FString& AbnormalId, UClass* AbnormalClass, const FActorSpawnParameters& SpawnParameters) const;
 
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = Abnormal)
 	/**
@@ -105,7 +82,6 @@ public:
 	bool DestroyAbnormalActorsById(const FString& AbnormalId);
 
 	bool DestroyAbnormalActorsById_Implementation(const FString& AbnormalId);
-
 
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = Abnormal)
 	/**

@@ -15,6 +15,15 @@ public:
 	// Sets default values for this actor's properties
 	AAbnormalBase();
 
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Abnormal | Base")
+	float PlayRate = 1.f;
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Abnormal | Base")
+	float DelaySeconds = 0.f;
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Abnormal | Base")
+	bool bHidePreviewWindow = false;
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Abnormal | Base")
+	bool bOnTrainAbnormal = false;
+
 	/// 播放Actor中ActorSequenceComponent组件包含的动画
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "Abnormal | Base")
 	void StartPlaySequence();
@@ -61,6 +70,8 @@ public:
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "Abnormal | Base")
 	bool CustomAttachToTargetActor();
 
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "Abnormal | Base")
+	bool RigisterPreviewWindow();
 private:
 	FString AbnormalId;
 

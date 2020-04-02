@@ -3,14 +3,13 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameFramework/Actor.h"
 #include "AbnormalTaskInfo.generated.h"
 
 UENUM(BlueprintType)
 enum class ETargetTransformSource : uint8
 {
 	TTS_FromOutside      = 2 UMETA(DisplayName = "外部提供"),
-	TTS_FromTargetActors = 4 UMETA(DisplayName = "目标指定"),
+	TTS_FromTargetActor  = 4 UMETA(DisplayName = "目标指定"),
 	TTS_FromSelf         = 8 UMETA(DisplayName = "自身提供"),
 	TTS_None			 = 0 UMETA(DisplayName = "无")
 };
@@ -58,6 +57,12 @@ struct FAbnormalInfo
 	/// 目前使用的是SetActorRelativeTransform的方式
 	FTransform AdditiveTransform;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Abnormal, meta = (AbnormalActorType = 48))
+	/// 设置AdditiveTransform变量的设置方式
+	/// 勾选为使用AddActorWorldTransform方式
+	/// 否则使用AddActorLocalTransform的方式
+	uint8 bWorldTransform : 1;
+	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Abnormal, meta = (AbnormalActorType = 48))
 	/// 指定该非正常Actor里面的动画资源播放时的速率
 	float PlayRate = 1.0f;
