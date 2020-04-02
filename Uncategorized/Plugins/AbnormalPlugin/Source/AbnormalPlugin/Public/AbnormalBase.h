@@ -58,14 +58,6 @@ public:
 	 */
 	void SetAbnormalId(const FString& TaskId);
 
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Abnormal | Base")
-	AActor* RegisterTargetActor();
-	AActor* RegisterTargetActor_Implementation();
-
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Abnormal | Base")
-	TArray<AActor*> RegisterTargetActors();
-	TArray<AActor*> RegisterTargetActors_Implementation();
-
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "Abnormal | Base")
 	bool CustomAttachToTargetActor();
 

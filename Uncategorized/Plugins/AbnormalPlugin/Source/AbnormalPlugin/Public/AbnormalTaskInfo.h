@@ -28,47 +28,42 @@ struct FAbnormalInfo
 {
 	GENERATED_USTRUCT_BODY()
 	UPROPERTY(EditAnywhere, Category = Abnormal)
-	/// 动态生成非正常Actor标识，从实例中选择和从类中选择只能二选一
+	/// 非正常Actor类型（蓝图类/关卡实例）
+	/// 动态生成需要指定非正常蓝图类
+	/// 指定实例需要指定当前关卡中放置的非正常Actor
 	EAbnormalActorType AbnormalActorType = EAbnormalActorType::AAT_DynamicGenerate;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Abnormal, meta = (AbnormalActorType = 16))
-	/// 未拖入场景中的非正常Actor类，只能指定AbnormalBase类及其子类
+	/// 非正常蓝图类
 	TSubclassOf<class AAbnormalBase> AbnormalClass;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Abnormal, meta = (AbnormalActorType = 32))
-	/// 场景中已存在的非正常Actor，具体类型的非正常，如铁路维修人员施工非正常Actor、石头滚落Actor
+	/// 非正常Actor关卡实例
 	AAbnormalBase* AbnormalActor;
 
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Abnormal)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Abnormal, meta = (AbnormalActorType = 48))
 	/// 挂载点位置信息来源
-	/// 自身提供：将由非正常Actor的具体填表属性来决定出现的位置。例如第一节车厢的中心偏移相对距离
-	/// 目标指定：将由填表信息TargetActors来指定具体的挂载点。例如线路火灾直接使用场景中某段线路旁的目标点
-	/// 外部提供：将由下发非正常任务的外部程序提供位置信息。例如外部发送落石非正常并发送了一个世界坐标
+	/// 自身提供：将由非正常蓝图类的自定义函数CustomAttachToTargetActor来实现挂载操作
+	/// 目标指定：将由填表信息TargetActor来指定具体的挂载点。例如线路火灾直接使用场景中某段线路旁的目标点
+	/// 外部提供：将由下发非正常任务的外部程序提供位置信息。例如外部发送落石非正常并发送了一个线路世界坐标
 	ETargetTransformSource TargetTransformSource = ETargetTransformSource::TTS_FromOutside;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Abnormal, meta = (TargetTransformSource = 4, AbnormalActorType = 16))
-	/// 欲挂载的目标点，一个单位的非正常动画可以挂载到多个目标点上
-	TArray<AActor*> TargetActors;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Abnormal, meta = (TargetTransformSource = 4, AbnormalActorType = 32))
-	/// 欲挂载的目标点，拖入关卡中的非正常Actor只能挂载在一个Actor上
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Abnormal, meta = (AbnormalActorType = 48, TargetTransformSource = 4))
+	/// 挂载点，可以选择关卡中任意的Actor作为非正常Actor的父级对象
 	AActor* TargetActor;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Abnormal)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Abnormal, meta = (AbnormalActorType = 48))
 	/// 除了设定外部指定/关卡内指定/自定义的位置，再附加一个Transform量
-	/// 例如本来设置的位置是(10,10,10)，旋转是(0,0,90)，缩放是(1,1,1)，
-	/// 现在设置AdditiveTransform的值为(-5,-5,-5),(90,0,0),(2,2,2)，
-	/// 则最终结果为(5,5,5),(90,0,90),(2,2,2)。
-	/// 即平移和旋转是增量模式，缩放是设置（覆盖）模式
+	/// 目前使用的是SetActorRelativeTransform的方式
 	FTransform AdditiveTransform;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Abnormal)
-	/// 指定该非正常动画的播放速率
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Abnormal, meta = (AbnormalActorType = 48))
+	/// 指定该非正常Actor里面的动画资源播放时的速率
 	float PlayRate = 1.0f;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Abnormal)
-	/// 设置延迟播放的时间
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Abnormal, meta = (AbnormalActorType = 48))
+	/// 设置在外部向通道写值要执行非正常任务后，非正常动画延迟多少秒开始播放
 	float DelaySeconds;
 };
 

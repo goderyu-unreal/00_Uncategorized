@@ -33,7 +33,7 @@ void AAbnormalTaskInfo::PostEditChangeProperty(struct FPropertyChangedEvent &Pro
 
 	if (PropertyName == GET_MEMBER_NAME_CHECKED(AAbnormalTaskInfo, ExtraAbnormals))
 	{
-		Abnormals.KeySort([](const FString &A, const FString &B) {
+		ExtraAbnormals.KeySort([](const FString &A, const FString &B) {
 			return A < B;
 		});
 	}

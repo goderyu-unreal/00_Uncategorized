@@ -139,86 +139,86 @@ void AAbnormalManager::TriggerTask_Implementation(const FString &AbnormalId, con
 			{
 				if (AbnormalInfo.TargetTransformSource == ETargetTransformSource::TTS_FromOutside)
 				{
-					// 从外部接收位置信息，生成TargetActors
-					AbnormalInfo.TargetActors = SpawnTargetActors(AbnormalId, TargetTransforms);
-					// 生成非正常Actor
-					auto AbnormalActors = SpawnAbnormalActors(AbnormalId, AbnormalInfo.AbnormalClass, AbnormalInfo.TargetActors.Num());
-					// 附加
-					if (AbnormalActors.Num() != AbnormalInfo.TargetActors.Num())
-					{
-						UE_LOG(LogAbnormalPlugin, Warning, TEXT("动态生成的非正常Actor和挂载点的数量不一致，无法进行一对一挂载"));
-					}
-					else
-					{
-						auto AttachRule = FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true);
-						for (auto Index = 0; Index < AbnormalActors.Num(); ++Index)
-						{
-							AbnormalActors[Index]->AttachToActor(AbnormalInfo.TargetActors[Index], AttachRule);
-							AbnormalActors[Index]->SetActorRelativeTransform(AbnormalInfo.AdditiveTransform);
-							// AbnormalActors[Index]->AddActorLocalOffset(AbnormalInfo.AdditiveTransform.GetTranslation());
-							// AbnormalActors[Index]->AddActorLocalRotation(AbnormalInfo.AdditiveTransform.GetRotation());
-							// AbnormalActors[Index]->SetActorScale3D(AbnormalInfo.AdditiveTransform.GetScale3D());
-							AbnormalActors[Index]->PreSet();
-							AbnormalActors[Index]->StartPlaySequence();
-						}
-					}
+					// // 从外部接收位置信息，生成TargetActors
+					// AbnormalInfo.TargetActors = SpawnTargetActors(AbnormalId, TargetTransforms);
+					// // 生成非正常Actor
+					// auto AbnormalActors = SpawnAbnormalActors(AbnormalId, AbnormalInfo.AbnormalClass, AbnormalInfo.TargetActors.Num());
+					// // 附加
+					// if (AbnormalActors.Num() != AbnormalInfo.TargetActors.Num())
+					// {
+					// 	UE_LOG(LogAbnormalPlugin, Warning, TEXT("动态生成的非正常Actor和挂载点的数量不一致，无法进行一对一挂载"));
+					// }
+					// else
+					// {
+					// 	auto AttachRule = FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true);
+					// 	for (auto Index = 0; Index < AbnormalActors.Num(); ++Index)
+					// 	{
+					// 		AbnormalActors[Index]->AttachToActor(AbnormalInfo.TargetActors[Index], AttachRule);
+					// 		AbnormalActors[Index]->SetActorRelativeTransform(AbnormalInfo.AdditiveTransform);
+					// 		// AbnormalActors[Index]->AddActorLocalOffset(AbnormalInfo.AdditiveTransform.GetTranslation());
+					// 		// AbnormalActors[Index]->AddActorLocalRotation(AbnormalInfo.AdditiveTransform.GetRotation());
+					// 		// AbnormalActors[Index]->SetActorScale3D(AbnormalInfo.AdditiveTransform.GetScale3D());
+					// 		AbnormalActors[Index]->PreSet();
+					// 		AbnormalActors[Index]->StartPlaySequence();
+					// 	}
+					// }
 				}
 				else if (AbnormalInfo.TargetTransformSource == ETargetTransformSource::TTS_FromTargetActors)
 				{
-					// 从填表处接收位置信息，指定TargetActors
-					for (auto &TargetActor : AbnormalInfo.TargetActors)
-					{
-						if (!TargetActor)
-						{
-							AbnormalInfo.TargetActors.Remove(TargetActor);
-						}
-					}
-					// 生成非正常Actor
-					auto AbnormalActors = SpawnAbnormalActors(AbnormalId, AbnormalInfo.AbnormalClass, AbnormalInfo.TargetActors.Num());
-					// 附加
-					if (AbnormalActors.Num() != AbnormalInfo.TargetActors.Num())
-					{
-						UE_LOG(LogAbnormalPlugin, Warning, TEXT("动态生成的非正常Actor和挂载点的数量不一致，无法进行一对一挂载"));
-					}
-					else
-					{
-						auto AttachRule = FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true);
-						for (auto Index = 0; Index < AbnormalActors.Num(); ++Index)
-						{
-							AbnormalActors[Index]->AttachToActor(AbnormalInfo.TargetActors[Index], AttachRule);
-							AbnormalActors[Index]->SetActorRelativeTransform(AbnormalInfo.AdditiveTransform);
-							// AbnormalActors[Index]->AddActorLocalOffset(AbnormalInfo.AdditiveTransform.GetTranslation());
-							// AbnormalActors[Index]->AddActorLocalRotation(AbnormalInfo.AdditiveTransform.GetRotation());
-							// AbnormalActors[Index]->SetActorScale3D(AbnormalInfo.AdditiveTransform.GetScale3D());
-							AbnormalActors[Index]->PreSet();
-							AbnormalActors[Index]->StartPlaySequence();
-						}
-					}
+					// // 从填表处接收位置信息，指定TargetActors
+					// for (auto &TargetActor : AbnormalInfo.TargetActors)
+					// {
+					// 	if (!TargetActor)
+					// 	{
+					// 		AbnormalInfo.TargetActors.Remove(TargetActor);
+					// 	}
+					// }
+					// // 生成非正常Actor
+					// auto AbnormalActors = SpawnAbnormalActors(AbnormalId, AbnormalInfo.AbnormalClass, AbnormalInfo.TargetActors.Num());
+					// // 附加
+					// if (AbnormalActors.Num() != AbnormalInfo.TargetActors.Num())
+					// {
+					// 	UE_LOG(LogAbnormalPlugin, Warning, TEXT("动态生成的非正常Actor和挂载点的数量不一致，无法进行一对一挂载"));
+					// }
+					// else
+					// {
+					// 	auto AttachRule = FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true);
+					// 	for (auto Index = 0; Index < AbnormalActors.Num(); ++Index)
+					// 	{
+					// 		AbnormalActors[Index]->AttachToActor(AbnormalInfo.TargetActors[Index], AttachRule);
+					// 		AbnormalActors[Index]->SetActorRelativeTransform(AbnormalInfo.AdditiveTransform);
+					// 		// AbnormalActors[Index]->AddActorLocalOffset(AbnormalInfo.AdditiveTransform.GetTranslation());
+					// 		// AbnormalActors[Index]->AddActorLocalRotation(AbnormalInfo.AdditiveTransform.GetRotation());
+					// 		// AbnormalActors[Index]->SetActorScale3D(AbnormalInfo.AdditiveTransform.GetScale3D());
+					// 		AbnormalActors[Index]->PreSet();
+					// 		AbnormalActors[Index]->StartPlaySequence();
+					// 	}
+					// }
 				}
 				else if (AbnormalInfo.TargetTransformSource == ETargetTransformSource::TTS_FromSelf)
 				{
-					// 自己内部指定TargetActors，针对此情况，后续也不会对其进行统一的附加操作
-					auto AbnormalActors = SpawnAbnormalActors(AbnormalId, AbnormalInfo.AbnormalClass);
-					if (AbnormalActors.Num() > 0)
-					{
-						if (auto AbnormalActor = AbnormalActors.Pop())
-						{
-							if (AbnormalActor->CustomAttachToTargetActor())
-							{
-								UE_LOG(LogAbnormalPlugin, Log, TEXT("已经执行非正常Actor的自定义挂载操作"));
-								AbnormalActor->PreSet();
-								AbnormalActor->StartPlaySequence();
-							}
-							else
-							{
-								UE_LOG(LogAbnormalPlugin, Warning, TEXT("非正常Actor的自定义挂载操作失败"));
-							}
-						}
-					}
-					else
-					{
-						UE_LOG(LogAbnormalPlugin, Warning, TEXT("位置信息来源为自身提供，动态生成单个非正常Actor的操作失败，因此后续操作都将跳过"));
-					}
+					// // 自己内部指定TargetActors，针对此情况，后续也不会对其进行统一的附加操作
+					// auto AbnormalActors = SpawnAbnormalActors(AbnormalId, AbnormalInfo.AbnormalClass);
+					// if (AbnormalActors.Num() > 0)
+					// {
+					// 	if (auto AbnormalActor = AbnormalActors.Pop())
+					// 	{
+					// 		if (AbnormalActor->CustomAttachToTargetActor())
+					// 		{
+					// 			UE_LOG(LogAbnormalPlugin, Log, TEXT("已经执行非正常Actor的自定义挂载操作"));
+					// 			AbnormalActor->PreSet();
+					// 			AbnormalActor->StartPlaySequence();
+					// 		}
+					// 		else
+					// 		{
+					// 			UE_LOG(LogAbnormalPlugin, Warning, TEXT("非正常Actor的自定义挂载操作失败"));
+					// 		}
+					// 	}
+					// }
+					// else
+					// {
+					// 	UE_LOG(LogAbnormalPlugin, Warning, TEXT("位置信息来源为自身提供，动态生成单个非正常Actor的操作失败，因此后续操作都将跳过"));
+					// }
 				}
 				else
 				{
