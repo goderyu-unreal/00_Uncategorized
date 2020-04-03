@@ -26,6 +26,9 @@ public:
 
 	bool bDynamicGenerated = true;
 
+	UPROPERTY(BlueprintReadWrite, Category = "Abnormal | Base")
+	class UAbnormalPopMenu* AbnormalPopMenu;
+	
 
 	/// 播放Actor中ActorSequenceComponent组件包含的动画
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "Abnormal | Base")

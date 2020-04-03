@@ -64,7 +64,6 @@ void AAbnormalManager::IntegrateAllAbnormalTaskInfoToAbnormals_Implementation(TM
 
 void AAbnormalManager::TriggerTask_Implementation(const FString& AbnormalId, const FString& AbnormalTaskName, const FTransform& TargetTransform)
 {
-	// TODO 打印日志增强一下信息，加入非正常任务名，第几个元素有问题，对照前面整合时输出的该条非正常所在关卡，及时修改数据
 	if (auto AbnormalTask = Abnormals.Find(AbnormalTaskName))
 	{
 		for (auto &AbnormalInfo : AbnormalTask->AbnormalsInfo)
