@@ -28,6 +28,7 @@ public class AbnormalPlugin : ModuleRules
 				"Core",
 				// "ActorSequence"
 				// ... add other public dependencies that you statically link with here ...
+				"UMG",
 			}
 			);
 			
