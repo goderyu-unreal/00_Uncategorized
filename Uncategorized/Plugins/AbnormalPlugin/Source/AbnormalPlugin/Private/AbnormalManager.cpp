@@ -411,6 +411,7 @@ void AAbnormalManager::BeginPlay()
 	// FIXME 如果是关卡流加载形式，BeginPlay中执行一次是否能获取所有填表信息？这里有待检验的逻辑漏洞
 	// 验证了一半，关卡流被加载进来的已经都能获取到了，目前并不会测试没有被加载的
 	IntegrateAllAbnormalTaskInfoToAbnormals(OUT Abnormals);
+	ConfigFileManager = UConfigFileManager();
 	Super::BeginPlay();
 }
 

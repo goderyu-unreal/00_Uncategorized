@@ -9,7 +9,8 @@
 
 void AAbnormalBase::RegisterMenu_Implementation()
 {
-	UClass* AbnormalPopMenuBPClass = LoadClass<UAbnormalPopMenu>(this, TEXT("Blueprint'/AbnormalPlugin/BPActors/UI_AbnormalPopMenu_Test.UI_AbnormalPopMenu_Test_C'"));    //TSubclassOf<AActor>同理
+	auto PopMenuAssetPath = ConfigFileManager.GetValue(TEXT("PopMenuAssetPath"), TEXT("ProjectConfig"));
+	UClass* AbnormalPopMenuBPClass = LoadClass<UAbnormalPopMenu>(this, *PopMenuAssetPath);
 	if (AbnormalPopMenuBPClass)
 	{
 		AbnormalPopMenu = NewObject<UAbnormalPopMenu>(this, AbnormalPopMenuBPClass);
@@ -17,11 +18,29 @@ void AAbnormalBase::RegisterMenu_Implementation()
 		{
 			AbnormalPopMenu->SetVisibility(ESlateVisibility::Collapsed);
 			AbnormalPopMenu->AddToViewport();
-			if (auto Button = AbnormalPopMenu->RegisterMenuItem(FString(TEXT("处理"))))
+			auto DefaultRegisterMenu = ConfigFileManager.GetValue(TEXT("DefaultRegisterMenu"), TEXT("ProjectConfig"));
+			TArray<FString> MenuItems;
+			DefaultRegisterMenu.ParseIntoArray(OUT MenuItems, TEXT(";"));
+			for (auto MenuItem : MenuItems)
 			{
-				FScriptDelegate Delegate;
-				Delegate.BindUFunction(this, "Process");
-				Button->OnClicked.AddUnique(Delegate);
+				TArray<FString> MenuItemDescAndFuncName;
+				MenuItem.ParseIntoArray(OUT MenuItemDescAndFuncName, TEXT(","));
+				if (MenuItemDescAndFuncName.Num() == 2)
+				{
+					if (auto Button = AbnormalPopMenu->RegisterMenuItem(MenuItemDescAndFuncName[0]))
+					{
+						FScriptDelegate Delegate;
+						// 根据函数名进行绑定，传入的第一个参数为this是非正常基类，但是假如子类自己实现一个函数，依旧会正确绑定
+						// 即便是非正常基类没有声明的函数，只要子类中定义了该函数，就能正确执行
+						// 这个功能可谓相当的强大！！
+						Delegate.BindUFunction(this, *MenuItemDescAndFuncName[1]);
+						Button->OnClicked.AddUnique(Delegate);
+					}
+				}
+				else
+				{
+					UE_LOG(LogAbnormalPlugin, Warning, TEXT("解析配置文件DefaultRegisterMenu数据时出错，导致没有按照既定格式分割数据，请及时检查，其内容为%s"), *DefaultRegisterMenu);
+				}
 			}
 		}
 		else
@@ -63,8 +82,8 @@ AAbnormalBase::AAbnormalBase()
 // Called when the game starts or when spawned
 void AAbnormalBase::BeginPlay()
 {
+	ConfigFileManager = UConfigFileManager();
 	Super::BeginPlay();
-	
 }
 
 // Called every frame

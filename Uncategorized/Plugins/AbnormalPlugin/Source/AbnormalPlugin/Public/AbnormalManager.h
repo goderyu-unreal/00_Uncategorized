@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "AbnormalBase.h"
 #include "AbnormalTaskInfo.h"
+#include "ConfigFileManager.h"
 #include "AbnormalManager.generated.h"
 
 // DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FOnAddAbnormal, const FString&, AbnormalTaskId, const FString&, AbnormalTaskName, const FTransform&, TargetTransform);
@@ -173,4 +174,7 @@ protected:
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
+
+private:
+	UConfigFileManager ConfigFileManager;
 };

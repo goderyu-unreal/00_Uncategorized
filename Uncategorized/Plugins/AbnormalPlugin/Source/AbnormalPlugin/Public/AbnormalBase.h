@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameFramework/Actor.h"
+#include "ConfigFileManager.h"
 #include "AbnormalBase.generated.h"
 
 UCLASS()
@@ -80,6 +80,7 @@ public:
 	bool RigisterPreviewWindow();
 private:
 	FString AbnormalId;
+	UConfigFileManager ConfigFileManager;
 
 protected:
 	// Called when the game starts or when spawned
