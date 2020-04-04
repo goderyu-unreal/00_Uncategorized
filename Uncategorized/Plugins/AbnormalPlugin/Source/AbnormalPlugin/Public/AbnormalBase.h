@@ -23,7 +23,11 @@ public:
 	bool bHidePreviewWindow = false;
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Abnormal | Base")
 	bool bOnTrainAbnormal = false;
-
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Abnormal | Base")
+	/// 动态注册的菜单项，键填写函数名，值填写弹出式菜单按钮显示的内容
+	/// 如Process:处理事件
+	/// 则会注册一个菜单项，按钮内容为"处理事件"，点击该按钮会执行自定义的Process函数
+	TMap<FString, FString> MenuItems;
 	bool bDynamicGenerated = true;
 
 	UPROPERTY(BlueprintReadWrite, Category = "Abnormal | Base")

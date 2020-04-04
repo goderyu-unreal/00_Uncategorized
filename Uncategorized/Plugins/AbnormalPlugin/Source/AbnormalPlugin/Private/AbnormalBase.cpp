@@ -23,28 +23,46 @@ void AAbnormalBase::RegisterMenu_Implementation()
 		{
 			AbnormalPopMenu->SetVisibility(ESlateVisibility::Collapsed);
 			AbnormalPopMenu->AddToViewport();
-			auto DefaultRegisterMenu = ConfigFileManager.GetValue(TEXT("DefaultRegisterMenu"), TEXT("ProjectConfig"));
-			TArray<FString> MenuItems;
-			DefaultRegisterMenu.ParseIntoArray(OUT MenuItems, TEXT(";"));
-			for (auto MenuItem : MenuItems)
+			// 读取配置文件中的注册菜单模式，根据不同策略来设置MenuItems
+			auto RegisterMenuMode = ConfigFileManager.GetValue(TEXT("RegisterMenuMode"), TEXT("ProjectConfig"));
+			if (!RegisterMenuMode.Equals(TEXT("OnlyUnreal"), ESearchCase::IgnoreCase))
 			{
-				TArray<FString> MenuItemDescAndFuncName;
-				MenuItem.ParseIntoArray(OUT MenuItemDescAndFuncName, TEXT(","));
-				if (MenuItemDescAndFuncName.Num() == 2)
+				if (RegisterMenuMode.Equals(TEXT("OnlyConfig"), ESearchCase::IgnoreCase))
 				{
-					if (auto Button = AbnormalPopMenu->RegisterMenuItem(MenuItemDescAndFuncName[0]))
+					MenuItems.Empty();
+				}
+				auto DefaultRegisterMenu = ConfigFileManager.GetValue(TEXT("DefaultRegisterMenu"), TEXT("ProjectConfig"));
+				TArray<FString> MenuItemsArr;
+				DefaultRegisterMenu.ParseIntoArray(OUT MenuItemsArr, TEXT(";"));
+				for (auto MenuItem : MenuItemsArr)
+				{
+					TArray<FString> MenuItemDescAndFuncName;
+					MenuItem.ParseIntoArray(OUT MenuItemDescAndFuncName, TEXT(","));
+					if (MenuItemDescAndFuncName.Num() == 2)
 					{
-						FScriptDelegate Delegate;
-						// 根据函数名进行绑定，传入的第一个参数为this是非正常基类，但是假如子类自己实现一个函数，依旧会正确绑定
-						// 即便是非正常基类没有声明的函数，只要子类中定义了该函数，就能正确执行
-						// 这个功能可谓相当的强大！！
-						Delegate.BindUFunction(this, *MenuItemDescAndFuncName[1]);
-						Button->OnClicked.AddUnique(Delegate);
+						if (RegisterMenuMode.Equals(TEXT("AppendNoReplace"), ESearchCase::IgnoreCase))
+						{
+							if (MenuItems.Contains(MenuItemDescAndFuncName[0])) continue;
+						}
+						MenuItems.Emplace(MenuItemDescAndFuncName[0], MenuItemDescAndFuncName[1]);
+					}
+					else
+					{
+						UE_LOG(LogAbnormalPlugin, Warning, TEXT("解析配置文件DefaultRegisterMenu数据时出错，导致没有按照既定格式分割数据，请及时检查，其内容为%s"), *DefaultRegisterMenu);
 					}
 				}
-				else
+			}
+			// 生成按钮，绑定事件
+			for (const auto& MenuItem : MenuItems)
+			{
+				if (auto Button = AbnormalPopMenu->RegisterMenuItem(MenuItem.Value))
 				{
-					UE_LOG(LogAbnormalPlugin, Warning, TEXT("解析配置文件DefaultRegisterMenu数据时出错，导致没有按照既定格式分割数据，请及时检查，其内容为%s"), *DefaultRegisterMenu);
+					FScriptDelegate Delegate;
+					// 根据函数名进行绑定，传入的第一个参数为this是非正常基类，但是假如子类自己实现一个函数，依旧会正确绑定
+					// 即便是非正常基类没有声明的函数，只要子类中定义了该函数，就能正确执行
+					// 这个功能可谓相当的强大！！
+					Delegate.BindUFunction(this, *MenuItem.Key);
+					Button->OnClicked.AddUnique(Delegate);	
 				}
 			}
 		}
