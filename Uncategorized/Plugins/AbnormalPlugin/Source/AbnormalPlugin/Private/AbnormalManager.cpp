@@ -202,7 +202,7 @@ AActor* AAbnormalManager::SpawnTargetActor(const FString &AbnormalId, const FTra
 
 AAbnormalBase* AAbnormalManager::SpawnAbnormalActor(const FString &AbnormalId, UClass *AbnormalClass, const FActorSpawnParameters& SpawnParameters) const
 {
-	if (auto AbnormalActor = GetWorld()->SpawnActor<AAbnormalBase>(AbnormalClass, FVector::ZeroVector, FRotator::ZeroRotator, SpawnParameters))
+	if (auto AbnormalActor = GetWorld()->SpawnActor<AAbnormalBase>(AbnormalClass, FTransform::Identity, SpawnParameters))
 	{
 		AbnormalActor->Tags.Emplace(FName(*AbnormalId));
 		return AbnormalActor;
@@ -232,7 +232,8 @@ bool AAbnormalManager::DestroyAbnormalActorsById_Implementation(const FString &A
 		}
 		else
 		{
-			UE_LOG(LogAbnormalPlugin, Warning, TEXT("清除非正常任务相关资源时转型失败"));
+			bAllDestroy &= Actor->Destroy();
+			// UE_LOG(LogAbnormalPlugin, Warning, TEXT("清除非正常任务相关资源时转型失败"));
 		}
 	}
 	return bAllDestroy;

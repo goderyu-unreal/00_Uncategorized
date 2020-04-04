@@ -5,7 +5,15 @@
 #include "AbnormalPlugin.h"
 #include "AbnormalPopMenu.h"
 #include "Engine/World.h"
+#include "InputCore/Classes/InputCoreTypes.h"
 #include "Components/Button.h"
+
+void AAbnormalBase::PreSet_Implementation()
+{
+	FScriptDelegate Delegate;
+	Delegate.BindUFunction(this, "TestOnClicked");
+	this->OnClicked.AddUnique(Delegate);
+}
 
 void AAbnormalBase::RegisterMenu_Implementation()
 {
@@ -61,6 +69,14 @@ void AAbnormalBase::Process_Implementation()
 	}
 }
 
+void AAbnormalBase::Cancel_Implementation()
+{
+	if (AbnormalPopMenu)
+	{
+		AbnormalPopMenu->SetVisibility(ESlateVisibility::Collapsed);
+	}
+}
+
 void AAbnormalBase::SetAbnormalId(const FString& TaskId)
 {
 	AbnormalId = TaskId;
@@ -93,3 +109,35 @@ void AAbnormalBase::Tick(float DeltaTime)
 
 }
 
+
+// void AAbnormalBase::NotifyActorOnClicked(FKey ButtonPressed)
+// {
+// 	if (ButtonPressed == EKeys::RightMouseButton)
+// 	{
+// 		UE_LOG(LogAbnormalPlugin, Warning, TEXT("鼠标右键点击了非正常Actor"));
+// 		if (AbnormalPopMenu)
+// 		{
+// 			if (auto PlayerController = GWorld->GetFirstPlayerController())
+// 			{
+// 				float MouseLocationX;
+// 				float MouseLocationY;
+// 				PlayerController->GetMousePosition(OUT MouseLocationX, OUT MouseLocationY);
+// 				AbnormalPopMenu->SetDesiredSizeInViewport(FVector2D(MouseLocationX, MouseLocationY));
+// 			}
+// 			AbnormalPopMenu->SetVisibility(ESlateVisibility::Visible);
+// 		}
+// 	}
+// 	else if (ButtonPressed == EKeys::LeftMouseButton)
+// 	{
+// 		UE_LOG(LogAbnormalPlugin, Log, TEXT("鼠标左键点击了非正常Actor"));
+// 	}
+
+
+
+// }
+
+void AAbnormalBase::TestOnClicked(AActor* TouchedActor, FKey ButtonPressed )
+{
+	auto ButtonDisplayName = ButtonPressed.GetDisplayName().ToString();
+	UE_LOG(LogAbnormalPlugin, Log, TEXT("触发点击事件，%s"), *ButtonDisplayName);
+}

@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "ConfigFileManager.h"
+// #include "GameFramework/Actor.h"
 #include "AbnormalBase.generated.h"
 
 UCLASS()
@@ -34,12 +35,13 @@ public:
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "Abnormal | Base")
 	void StartPlaySequence();
 
-	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "Abnormal | Base")
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Abnormal | Base")
 	/**
 	 * @brief 在播放动画前的设置。执行流程：
 	 * 绑定非正常Actor到TargetActors --> 预设置 --> 播放序列
 	 */
 	void PreSet();
+	void PreSet_Implementation();
 	
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Abnormal | Base")
 	/**
@@ -56,6 +58,10 @@ public:
 	 */
 	void Process();
 	void Process_Implementation();
+
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Abnormal | Base")
+    void Cancel();
+	void Cancel_Implementation();
 	
 	UFUNCTION(BlueprintCallable, Category = "Abnormal | Base")
 	/**
@@ -86,8 +92,12 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
+	// virtual void NotifyActorOnClicked(FKey ButtonPressed) override;
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
+	// virtual void NotifyActorOnClicked(FKey ButtonPressed = EKeys::LeftMouseButton) override;
+	// void NotifyActorOnClicked(FKey ButtonPressed = EKeys::LeftMouseButton);
 
+	void TestOnClicked(class AActor* TouchedActor, FKey ButtonPressed);
 };
