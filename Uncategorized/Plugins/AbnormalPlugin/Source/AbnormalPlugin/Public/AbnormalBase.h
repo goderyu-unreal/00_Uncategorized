@@ -4,7 +4,6 @@
 
 #include "CoreMinimal.h"
 #include "ConfigFileManager.h"
-// #include "GameFramework/Actor.h"
 #include "AbnormalBase.generated.h"
 
 UCLASS()
@@ -96,8 +95,8 @@ protected:
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
-	// virtual void NotifyActorOnClicked(FKey ButtonPressed = EKeys::LeftMouseButton) override;
-	// void NotifyActorOnClicked(FKey ButtonPressed = EKeys::LeftMouseButton);
 
-	void TestOnClicked(class AActor* TouchedActor, FKey ButtonPressed);
+	// 覆写该函数，Actor被点击时会触发该函数
+	virtual void NotifyActorOnClicked(FKey ButtonPressed = EKeys::LeftMouseButton) override;
+
 };

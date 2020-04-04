@@ -10,9 +10,6 @@
 
 void AAbnormalBase::PreSet_Implementation()
 {
-	FScriptDelegate Delegate;
-	Delegate.BindUFunction(this, "TestOnClicked");
-	this->OnClicked.AddUnique(Delegate);
 }
 
 void AAbnormalBase::RegisterMenu_Implementation()
@@ -110,34 +107,27 @@ void AAbnormalBase::Tick(float DeltaTime)
 }
 
 
-// void AAbnormalBase::NotifyActorOnClicked(FKey ButtonPressed)
-// {
-// 	if (ButtonPressed == EKeys::RightMouseButton)
-// 	{
-// 		UE_LOG(LogAbnormalPlugin, Warning, TEXT("鼠标右键点击了非正常Actor"));
-// 		if (AbnormalPopMenu)
-// 		{
-// 			if (auto PlayerController = GWorld->GetFirstPlayerController())
-// 			{
-// 				float MouseLocationX;
-// 				float MouseLocationY;
-// 				PlayerController->GetMousePosition(OUT MouseLocationX, OUT MouseLocationY);
-// 				AbnormalPopMenu->SetDesiredSizeInViewport(FVector2D(MouseLocationX, MouseLocationY));
-// 			}
-// 			AbnormalPopMenu->SetVisibility(ESlateVisibility::Visible);
-// 		}
-// 	}
-// 	else if (ButtonPressed == EKeys::LeftMouseButton)
-// 	{
-// 		UE_LOG(LogAbnormalPlugin, Log, TEXT("鼠标左键点击了非正常Actor"));
-// 	}
-
-
-
-// }
-
-void AAbnormalBase::TestOnClicked(AActor* TouchedActor, FKey ButtonPressed )
+void AAbnormalBase::NotifyActorOnClicked(FKey ButtonPressed)
 {
-	auto ButtonDisplayName = ButtonPressed.GetDisplayName().ToString();
-	UE_LOG(LogAbnormalPlugin, Log, TEXT("触发点击事件，%s"), *ButtonDisplayName);
+	// 目前使用的是默认的GameMode，PlayerController，除鼠标左键的点击根本无效
+	// 还没有找到合适方法开启鼠标右键，因此先实现左键点击弹出菜单
+	if (ButtonPressed == EKeys::LeftMouseButton)
+	{
+		if (AbnormalPopMenu)
+		{
+			if (auto PlayerController = GWorld->GetFirstPlayerController())
+			{
+				float MouseLocationX;
+				float MouseLocationY;
+				PlayerController->GetMousePosition(OUT MouseLocationX, OUT MouseLocationY);
+				AbnormalPopMenu->SetPositionInViewport(FVector2D(MouseLocationX, MouseLocationY));
+			}
+			AbnormalPopMenu->SetVisibility(ESlateVisibility::Visible);
+		}
+	}
+
+	// 父类的默认实现中，调用了蓝图里实现的ActorOnClicked事件
+	// 因此如果蓝图中重新实现了ActorOnClicked事件，会追加这些操作
+	Super::NotifyActorOnClicked(ButtonPressed);
+
 }
