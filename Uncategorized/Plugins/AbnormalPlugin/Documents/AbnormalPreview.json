@@ -1,0 +1,21 @@
+{
+    "AbnormalTaskName": "",             // 非正常任务名
+    "TargetTransform": "",              // 非正常生成位置
+    "AdditiveTransform": "",            // 在线路中心位置基础上的偏移量
+    "bWorldTransform": false,           // 偏移模式是否参照世界坐标系
+    "bPreviewing": true,                // 是否进行预览，用于控制摄像机位置
+    "CameraAddTrans": "",               // 摄像机的偏移量
+    "PlayCommand": "",                  // 控制动画效果的命令，Play/Pause/Stop/...
+    "PlayRate": 1.0                     // 动画播放的速率
+}
+// 例子
+{
+    "AbnormalTaskName": "HitStone",             
+    "TargetTransform": "1515.315466,345.215454,5881.635284;0.000000,0.000000,10.236502;1.0,1.0,1.0",              
+    "AdditiveTransform": "300.000000,0.000000,0.000000;90.000000,0.000000,0.000000;1.0,1.0,1.0",            
+    "bWorldTransform": false,           
+    "bPreviewing": true,                
+    "CameraAddTrans": "0.000000,0.000000,3000.000000;0.000000,0.000000,0.000000;1.0,1.0,1.0",              
+    "PlayCommand": "Play",                  
+    "PlayRate": 1.0                     
+}

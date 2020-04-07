@@ -136,6 +136,9 @@ public:
 	void UpdateAbnormalInfoFromString(const FString& AbnormalInfo);
 	void UpdateAbnormalInfoFromString_Implementation(const FString& AbnormalInfo);
 
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = Abnormal)
+	void AnalysisAbnormalPreviewInfo(const FString& AbnormalPreviewInfo);
+	void AnalysisAbnormalPreviewInfo_Implementation(const FString& AbnormalPreviewInfo);
 public:
 
 	// Sets default values for this actor's properties
@@ -177,4 +180,6 @@ public:
 
 private:
 	UConfigFileManager ConfigFileManager;
+
+	AActor* PreviewCameraActor = nullptr;
 };

@@ -389,6 +389,16 @@ void AAbnormalManager::UpdateAbnormalInfoFromString_Implementation(const FString
 	//}
 }
 
+void AAbnormalManager::AnalysisAbnormalPreviewInfo_Implementation(const FString& AbnormalPreviewInfo)
+{
+	auto Reader = TJsonReaderFactory<>::Create(AbnormalPreviewInfo);
+	TSharedPtr<FJsonObject> Json;
+	if (FJsonSerializer::Deserialize(Reader, Json))
+	{
+		
+	}
+}
+
 #if WITH_EDITOR
 void AAbnormalManager::PostEditChangeProperty(struct FPropertyChangedEvent &PropertyChangedEvent)
 {
