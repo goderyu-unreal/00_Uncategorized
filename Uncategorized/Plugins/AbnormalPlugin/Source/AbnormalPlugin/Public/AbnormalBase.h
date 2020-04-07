@@ -23,7 +23,11 @@ public:
 	bool bHidePreviewWindow = false;
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Abnormal | Base")
 	bool bOnTrainAbnormal = false;
-
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Abnormal | Base")
+	/// 动态注册的菜单项，键填写函数名，值填写弹出式菜单按钮显示的内容
+	/// 如Process:处理事件
+	/// 则会注册一个菜单项，按钮内容为"处理事件"，点击该按钮会执行自定义的Process函数
+	TMap<FString, FString> MenuItems;
 	bool bDynamicGenerated = true;
 
 	UPROPERTY(BlueprintReadWrite, Category = "Abnormal | Base")
@@ -34,12 +38,13 @@ public:
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "Abnormal | Base")
 	void StartPlaySequence();
 
-	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "Abnormal | Base")
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Abnormal | Base")
 	/**
 	 * @brief 在播放动画前的设置。执行流程：
 	 * 绑定非正常Actor到TargetActors --> 预设置 --> 播放序列
 	 */
 	void PreSet();
+	void PreSet_Implementation();
 	
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Abnormal | Base")
 	/**
@@ -56,6 +61,10 @@ public:
 	 */
 	void Process();
 	void Process_Implementation();
+
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Abnormal | Base")
+    void Cancel();
+	void Cancel_Implementation();
 	
 	UFUNCTION(BlueprintCallable, Category = "Abnormal | Base")
 	/**
@@ -86,8 +95,12 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
+	// virtual void NotifyActorOnClicked(FKey ButtonPressed) override;
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
+
+	// 覆写该函数，Actor被点击时会触发该函数
+	virtual void NotifyActorOnClicked(FKey ButtonPressed = EKeys::LeftMouseButton) override;
 
 };
