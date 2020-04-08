@@ -44,6 +44,7 @@ public class AbnormalPlugin : ModuleRules
 				"Json",
 				"JsonUtilities",
 				"PropertyEditor",
+				"InputCore",
 			}
 			);
 		

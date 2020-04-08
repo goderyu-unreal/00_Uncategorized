@@ -6,6 +6,12 @@
 #include "Engine/World.h"
 #include "Engine/EngineTypes.h"
 #include "Engine/TargetPoint.h"
+#include "Serialization/JsonReader.h"
+#include "Serialization/JsonSerializer.h"
+#include "Dom/JsonObject.h"
+#include "Kismet/KismetMathLibrary.h"
+#include "Camera/CameraActor.h"
+
 #include "Kismet/GameplayStatics.h"
 
 AAbnormalManager *AAbnormalManager::GetInstance(const UObject *WorldContextObject)
@@ -86,6 +92,7 @@ void AAbnormalManager::TriggerTask_Implementation(const FString& AbnormalId, con
 		UE_LOG(LogAbnormalPlugin, Warning, TEXT("外部发送的非正常任务在填表中没有匹配的，外部发送的任务名为%s"), *AbnormalTaskName);
 	}
 }
+
 
 bool AAbnormalManager::RegisterAbnormalActor_Implementation(FAbnormalInfo& AbnormalInfo, const FString& AbnormalId, const FString& AbnormalTaskName)
 {
@@ -210,6 +217,44 @@ AAbnormalBase* AAbnormalManager::SpawnAbnormalActor(const FString &AbnormalId, U
 	return nullptr;
 }
 
+FTransform AAbnormalManager::ConvertStringToTransform(const FString& TransformString)
+{
+	TArray<FString> TransformItems;
+	TransformString.ParseIntoArray(OUT TransformItems, L" ");
+	FTransform TargetTransform = FTransform::Identity;
+	if (TransformItems.Num() >= 3)
+	{
+		FVector TargetLocationOrScale = FVector::ZeroVector;
+		TargetLocationOrScale.X = FCString::Atof(*TransformItems[0]);
+		TargetLocationOrScale.Y = FCString::Atof(*TransformItems[1]);
+		TargetLocationOrScale.Z = FCString::Atof(*TransformItems[2]);
+		TargetLocationOrScale.Y *= -1;
+		TargetLocationOrScale *= 100;
+		FIntVector OriginLocation = GetWorld()->OriginLocation;
+		TargetLocationOrScale.X -= OriginLocation.X;
+		TargetLocationOrScale.Y -= OriginLocation.Y;
+		TargetLocationOrScale.Z -= OriginLocation.Z;
+		TargetTransform.SetLocation(TargetLocationOrScale);
+
+		if (TransformItems.Num() >= 6)
+		{
+			FRotator TargetRotator = FRotator::ZeroRotator;
+			TargetRotator.Roll = FCString::Atof(*TransformItems[3]);
+			TargetRotator.Pitch = FCString::Atof(*TransformItems[4]);
+			TargetRotator.Yaw = FCString::Atof(*TransformItems[5]);
+			TargetTransform.SetRotation(TargetRotator.Quaternion());
+		}
+
+		if (TransformItems.Num() >= 9)
+		{
+			TargetLocationOrScale.X = FCString::Atof(*TransformItems[6]);
+			TargetLocationOrScale.Y = FCString::Atof(*TransformItems[7]);
+			TargetLocationOrScale.Z = FCString::Atof(*TransformItems[8]);
+			TargetTransform.SetScale3D(TargetLocationOrScale);
+		}
+	}
+	return TargetTransform;
+}
 
 bool AAbnormalManager::DestroyAbnormalActorsById_Implementation(const FString &AbnormalId)
 {
@@ -396,7 +441,186 @@ void AAbnormalManager::AnalysisAbnormalPreviewInfo_Implementation(const FString&
 	TSharedPtr<FJsonObject> Json;
 	if (FJsonSerializer::Deserialize(Reader, Json))
 	{
+		auto PreviewAbnormalId = Json->GetStringField(TEXT("AbnormalId"));
+		auto PreviewAbnormalTaskName = Json->GetStringField(TEXT("AbnormalTaskName"));
+		auto PreviewTargetTransform = Json->GetStringField(TEXT("TargetTransform"));
+		auto PreviewAdditiveTransform = Json->GetStringField(TEXT("AdditiveTransform"));
+		auto PreviewBWorldTransform = Json->GetBoolField(TEXT("bWorldTransform"));
+		auto PreviewBPreviewing = Json->GetBoolField(TEXT("bPreviewing"));
+		auto PreviewCameraAddTrans = Json->GetStringField(TEXT("CameraAddTrans"));
+		auto PreviewPlayCommand = Json->GetStringField(TEXT("PlayCommand"));
+		auto PreviewPlayRate = Json->GetNumberField(TEXT("PlayRate"));
+		TArray<AActor *> ActorsWithAbnormalIdTag;
+		UGameplayStatics::GetAllActorsWithTag(this, FName(*PreviewAbnormalId), OUT ActorsWithAbnormalIdTag);
+		if (ActorsWithAbnormalIdTag.Num() > 0)
+		{
+			// 生成摄像机或者设置摄像机位置
+			if (PreviewCameraActor == nullptr)
+			{
+				PreviewCameraActor = GetWorld()->SpawnActor<ACameraActor>(ACameraActor::StaticClass(), FTransform::Identity, FActorSpawnParameters());
+			}
+			if (PreviewCameraActor)
+			{
+				auto CameraTransform = FTransform::Identity;
+				auto AbnormalActorTransform = ActorsWithAbnormalIdTag[0]->GetActorTransform();
+				
+				CameraTransform.SetLocation(AbnormalActorTransform.GetLocation() + ConvertStringToTransform(PreviewCameraAddTrans).GetLocation());
+
+				auto CameraRotator = UKismetMathLibrary::FindLookAtRotation(ConvertStringToTransform(PreviewCameraAddTrans).GetLocation(), AbnormalActorTransform.GetLocation());
+
+				CameraTransform.SetRotation(CameraRotator.Quaternion());
+
+				PreviewCameraActor->SetActorTransform(CameraTransform);
+				if (GetWorld()->GetFirstPlayerController()->GetViewTarget() != PreviewCameraActor)
+				{
+					GetWorld()->GetFirstPlayerController()->SetViewTarget(PreviewCameraActor);
+				}
+			}
+
+			// for (auto &Actor : ActorsWithAbnormalIdTag)
+			// {
+			// 	if (auto TargetActor = Cast<ATargetPoint>(Actor))
+			// 	{
+			// 		TargetActor->SetActorTransform(ConvertStringToTransform(PreviewTargetTransform));
+			// 	}
+			// 	if (auto AbnormalActor = Cast<AAbnormalBase>(Actor))
+			// 	{
+			// 		if (PreviewBWorldTransform)
+			// 		{
+			// 			AbnormalActor->AddActorWorldTransform(ConvertStringToTransform(PreviewAdditiveTransform));
+			// 		}
+			// 		else
+			// 		{
+			// 			AbnormalActor->AddActorLocalTransform(ConvertStringToTransform(PreviewAdditiveTransform));
+			// 		}
+			// 	}
+			// 	else
+			// 	{
+			// 	}
+			// }
+		}
+		else
+		{
+			// if (auto AbnormalTask = Abnormals.Find(AbnormalTaskName))
+			// {
+			// 	for (auto &AbnormalInfo : AbnormalTask->AbnormalsInfo)
+			// 	{
+			// 		// 执行流程：
+			// 		// 1.确定非正常Actor
+			// 		if (RegisterAbnormalActor(AbnormalInfo, AbnormalId, AbnormalTaskName) == false) continue;
+			// 		// 2.确定挂载点Actor
+			// 		if (RegisterTargetActor(AbnormalInfo, AbnormalId, TargetTransform, AbnormalTaskName) == false) continue;
+			// 		// 3.执行挂载操作
+			// 		AttachAbnormalToTarget(AbnormalInfo);
+			// 		// 4.设置相对偏移
+			// 		SetAdditiveTransform(AbnormalInfo);
+			// 		// 5-8
+			// 		InitAbnormalState(AbnormalInfo);
+			// 	}
+			// }
+			// else
+			// {
+			// 	UE_LOG(LogAbnormalPlugin, Warning, TEXT("外部发送的非正常任务在填表中没有匹配的，外部发送的任务名为%s"), *AbnormalTaskName);
+			// }
+		}
 		
+
+		// if (auto AbnormalTask = Abnormals.Find(AbnormalTaskName))
+		// {
+		// 	for (auto &AbnormalInfo : AbnormalTask->AbnormalsInfo)
+		// 	{
+		// 		// 执行流程：
+		// 		// 1.确定非正常Actor
+		// 		if (RegisterAbnormalActor(AbnormalInfo, AbnormalId, AbnormalTaskName) == false) continue;
+		// 		// 2.确定挂载点Actor
+		// 		if (RegisterTargetActor(AbnormalInfo, AbnormalId, TargetTransform, AbnormalTaskName) == false) continue;
+		// 		// 3.执行挂载操作
+		// 		AttachAbnormalToTarget(AbnormalInfo);
+		// 		// 4.设置相对偏移
+		// 		SetAdditiveTransform(AbnormalInfo);
+		// 		// 5-8
+		// 		InitAbnormalState(AbnormalInfo);
+		// 	}
+		// }
+		// else
+		// {
+		// 	UE_LOG(LogAbnormalPlugin, Warning, TEXT("外部发送的非正常任务在填表中没有匹配的，外部发送的任务名为%s"), *AbnormalTaskName);
+		// }
+	}
+}
+
+void AAbnormalManager::TriggerPreview_Implementation(const FString& AbnormalId, const FString& AbnormalTaskName, const FTransform& TargetTransform, const FString& PlayCommand)
+{
+	TArray<AActor *> ActorsWithAbnormalIdTag;
+	UGameplayStatics::GetAllActorsWithTag(this, FName(*AbnormalId), OUT ActorsWithAbnormalIdTag);
+	if (ActorsWithAbnormalIdTag.Num() > 0)
+	{
+		// for (auto &Actor : ActorsWithAbnormalIdTag)
+		// {
+		// 	if (auto TargetActor = Cast<ATargetPoint>(Actor))
+		// 	{
+		// 		TargetActor->SetActorWorldTransform(TargetTransform);
+		// 	}
+		// 	if (auto AbnormalActor = Cast<AAbnormalBase>(Actor))
+		// 	{
+		// 		if (AbnormalActor->)
+		// 		{
+		// 			bAllDestroy &= Actor->Destroy();
+		// 		}
+		// 		else
+		// 		{
+		// 		}
+		// 	}
+		// 	else
+		// 	{
+		// 	}
+		// }
+	}
+	else
+	{
+		if (auto AbnormalTask = Abnormals.Find(AbnormalTaskName))
+		{
+			for (auto &AbnormalInfo : AbnormalTask->AbnormalsInfo)
+			{
+				// 执行流程：
+				// 1.确定非正常Actor
+				if (RegisterAbnormalActor(AbnormalInfo, AbnormalId, AbnormalTaskName) == false) continue;
+				// 2.确定挂载点Actor
+				if (RegisterTargetActor(AbnormalInfo, AbnormalId, TargetTransform, AbnormalTaskName) == false) continue;
+				// 3.执行挂载操作
+				AttachAbnormalToTarget(AbnormalInfo);
+				// 4.设置相对偏移
+				SetAdditiveTransform(AbnormalInfo);
+				// 5-8
+				InitAbnormalState(AbnormalInfo);
+			}
+		}
+		else
+		{
+			UE_LOG(LogAbnormalPlugin, Warning, TEXT("外部发送的非正常任务在填表中没有匹配的，外部发送的任务名为%s"), *AbnormalTaskName);
+		}
+	}
+	
+	if (auto AbnormalTask = Abnormals.Find(AbnormalTaskName))
+	{
+		for (auto &AbnormalInfo : AbnormalTask->AbnormalsInfo)
+		{
+			// 执行流程：
+			// 1.确定非正常Actor
+			if (RegisterAbnormalActor(AbnormalInfo, AbnormalId, AbnormalTaskName) == false) continue;
+			// 2.确定挂载点Actor
+			if (RegisterTargetActor(AbnormalInfo, AbnormalId, TargetTransform, AbnormalTaskName) == false) continue;
+			// 3.执行挂载操作
+			AttachAbnormalToTarget(AbnormalInfo);
+			// 4.设置相对偏移
+			SetAdditiveTransform(AbnormalInfo);
+			// 5-8
+			InitAbnormalState(AbnormalInfo);
+		}
+	}
+	else
+	{
+		UE_LOG(LogAbnormalPlugin, Warning, TEXT("外部发送的非正常任务在填表中没有匹配的，外部发送的任务名为%s"), *AbnormalTaskName);
 	}
 }
 

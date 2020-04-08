@@ -139,6 +139,17 @@ public:
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = Abnormal)
 	void AnalysisAbnormalPreviewInfo(const FString& AbnormalPreviewInfo);
 	void AnalysisAbnormalPreviewInfo_Implementation(const FString& AbnormalPreviewInfo);
+
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = Abnormal)
+	/**
+	 * @brief 开始执行预览
+	 * 
+	 * @param AbnormalId 任务ID
+	 * @param AbnormalTaskName 任务名，用来和Abnormals中的键对应
+	 * @param TargetTransforms 位置信息，用来生成TargetPoint
+	 */
+	void TriggerPreview(const FString& AbnormalId, const FString& AbnormalTaskName, const FTransform& TargetTransform, const FString& PlayCommand);
+	void TriggerPreview_Implementation(const FString& AbnormalId, const FString& AbnormalTaskName, const FTransform& TargetTransform, const FString& PlayCommand);
 public:
 
 	// Sets default values for this actor's properties
@@ -165,6 +176,8 @@ public:
 	 * @return AAbnormalBase* 
 	 */
 	AAbnormalBase* SpawnAbnormalActor(const FString& AbnormalId, UClass* AbnormalClass, const FActorSpawnParameters& SpawnParameters) const;
+
+	FTransform ConvertStringToTransform(const FString& TransformString);
 
 #if WITH_EDITOR
 	virtual void PostEditChangeProperty(struct FPropertyChangedEvent& PropertyChangedEvent) override;
