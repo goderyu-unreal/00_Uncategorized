@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+    <html>
+    <head>
+        <meta charset="UTF-8">
+        <title>通道协议</title>
+        
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Microsoft/vscode/extensions/markdown-language-features/media/markdown.css">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Microsoft/vscode/extensions/markdown-language-features/media/highlight.css">
+        
+        <style>
+.task-list-item { list-style-type: none; } .task-list-item-checkbox { margin-left: -20px; vertical-align: middle; }
+</style>
+        <style>
+            body {
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe WPC', 'Segoe UI', 'Ubuntu', 'Droid Sans', sans-serif;
+                font-size: 14px;
+                line-height: 1.6;
+            }
+        </style>
+        
+        
+    </head>
+    <body class="vscode-light">
+        <h1 id="%e9%80%9a%e9%81%93%e5%8d%8f%e8%ae%ae">通道协议</h1>
+<h2 id="%e9%a2%84%e8%a7%88%e9%9d%9e%e6%ad%a3%e5%b8%b8%e9%80%9a%e9%81%93abnormalpreview">预览非正常通道AbnormalPreview</h2>
+<h3 id="%e9%80%9a%e9%81%93%e6%a0%bc%e5%bc%8f">通道格式</h3>
+<pre><code class="language-json"><div>{
+    <span class="hljs-attr">"AbnormalId"</span>: <span class="hljs-string">""</span>,
+    <span class="hljs-attr">"AbnormalTaskName"</span>: <span class="hljs-string">""</span>,
+    <span class="hljs-attr">"TargetTransform"</span>: <span class="hljs-string">""</span>,
+    <span class="hljs-attr">"AdditiveTransform"</span>: <span class="hljs-string">""</span>,
+    <span class="hljs-attr">"bWorldTransform"</span>: <span class="hljs-literal">false</span>,
+    <span class="hljs-attr">"bPreviewing"</span>: <span class="hljs-literal">true</span>,
+    <span class="hljs-attr">"CameraAddTrans"</span>: <span class="hljs-string">""</span>,
+    <span class="hljs-attr">"PlayCommand"</span>: <span class="hljs-string">""</span>,
+    <span class="hljs-attr">"PlayRate"</span>: <span class="hljs-number">1.0</span>
+}
+</div></code></pre>
+<h3 id="%e5%8f%82%e6%95%b0%e8%af%b4%e6%98%8e">参数说明</h3>
+<table>
+<thead>
+<tr>
+<th>参数名</th>
+<th>值类型</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>AbnormalId</td>
+<td>字符串型</td>
+<td>非正常任务Id</td>
+</tr>
+<tr>
+<td>AbnormalTaskName</td>
+<td>字符串型</td>
+<td>非正常任务名</td>
+</tr>
+<tr>
+<td>TargetTransform</td>
+<td>字符串型</td>
+<td>非正常生成的位置</td>
+</tr>
+<tr>
+<td>AdditiveTransform</td>
+<td>字符串型</td>
+<td>在线路中心位置基础上的偏移量</td>
+</tr>
+<tr>
+<td>bWorldTransform</td>
+<td>布尔型</td>
+<td>偏移量是否参照世界坐标系</td>
+</tr>
+<tr>
+<td>bPreviewing</td>
+<td>布尔型</td>
+<td>是否进行预览，用于控制场景视口</td>
+</tr>
+<tr>
+<td>CameraAddTrans</td>
+<td>字符串型</td>
+<td>摄像机的偏移量</td>
+</tr>
+<tr>
+<td>PlayCommand</td>
+<td>字符串型</td>
+<td>控制动画效果的命令，Play/Pause/Stop/...</td>
+</tr>
+<tr>
+<td>PlayRate</td>
+<td>浮点型</td>
+<td>动画播放的速率</td>
+</tr>
+</tbody>
+</table>
+<p><strong>参数详细说明：</strong></p>
+<ol>
+<li>Transform的数据，顺序为(位置X,位置Y,位置Z;绕X轴旋转值,绕Y轴旋转值,绕Z轴旋转值;X轴向的缩放比例,Y轴向的缩放比例,Z轴向的缩放比例) 数值之间均由<code> </code>(一个空格)分隔。数据精度保留小数点后<strong>6</strong>位</li>
+<li>根据给定的<strong>AbnormalTaskName</strong>，三维场景程序会查找填表数据，查找到对应的非正常数据后，如果填表信息中设置的位置信息来源为<em>外部提供</em>时，那么通道中的<strong>TargetTransform</strong>就会起作用。场景程序会在<strong>TargetTransform</strong>给定的位置上生成一个<em>挂载点</em>。接着生成填表信息中的模型，将该模型挂载到<em>挂载点</em>上。这样一来，非正常模型就从属于挂载点，可以依据挂载点的坐标系做偏移也可以根据世界坐标系做偏移。此时会根据<strong>bWorldTransform</strong>来判断参照哪一个坐标系，将<strong>AdditiveTransform</strong>中的偏移量设置给模型。</li>
+<li><strong>bPreviewing</strong>参数设置为true时，在场景中会将视口跳转到一个距离非正常模型一定位置的地方。设置为false后，场景中的视口会恢复到预览前的视口位置。<strong>CameraAddTrans</strong>用来调整观察非正常模型的视口位置，需要三个数值，第一个数值控制摄像机的左右移动，第二个数值控制摄像机的远近移动，第三个数值控制摄像机的上下移动。</li>
+<li><strong>PlayCommand</strong>参数用来控制非正常动画效果。可选值有<code>Play/Pause/Stop/Replay</code>，分别用来控制非正常动画的<code>播放/暂停/跳转到动画结束状态并停止/重新播放</code>。<strong>PlayRate</strong>用于控制动画播放的速率。</li>
+</ol>
+<h3 id="%e4%bd%bf%e7%94%a8%e7%a4%ba%e4%be%8b">使用示例</h3>
+<pre><code class="language-json"><div>{
+    <span class="hljs-attr">"AbnormalId"</span>: <span class="hljs-string">"AAA"</span>,
+    <span class="hljs-attr">"AbnormalTaskName"</span>: <span class="hljs-string">"HitStone"</span>,             
+    <span class="hljs-attr">"TargetTransform"</span>: <span class="hljs-string">"15.15315466 3.45215454 58.81635284 0.000000 0.000000 10.236502 1.0 1.0 1.0"</span>,              
+    <span class="hljs-attr">"AdditiveTransform"</span>: <span class="hljs-string">"3.00000000 0.000000 0.000000 90.000000 0.000000 0.000000 1.0 1.0 1.0"</span>,            
+    <span class="hljs-attr">"bWorldTransform"</span>: <span class="hljs-literal">false</span>,           
+    <span class="hljs-attr">"bPreviewing"</span>: <span class="hljs-literal">true</span>,                
+    <span class="hljs-attr">"CameraAddTrans"</span>: <span class="hljs-string">"-3.000000 -3.000000 2.000000"</span>,              
+    <span class="hljs-attr">"PlayCommand"</span>: <span class="hljs-string">"Play"</span>,                  
+    <span class="hljs-attr">"PlayRate"</span>: <span class="hljs-number">1.0</span>                     
+}
+</div></code></pre>
+
+    </body>
+    </html>

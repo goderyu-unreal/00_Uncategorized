@@ -65,11 +65,11 @@ struct FAbnormalInfo
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Abnormal, meta = (AbnormalActorType = 48))
 	/// 指定该非正常Actor里面的动画资源播放时的速率
-	float PlayRate = 1.0f;
+	float PlayRate = 1.f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Abnormal, meta = (AbnormalActorType = 48))
 	/// 设置在外部向通道写值要执行非正常任务后，非正常动画延迟多少秒开始播放
-	float DelaySeconds;
+	float DelaySeconds = 0.f;
 };
 
 USTRUCT(BlueprintType)

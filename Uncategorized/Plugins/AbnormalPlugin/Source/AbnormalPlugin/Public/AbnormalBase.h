@@ -37,6 +37,18 @@ public:
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "Abnormal | Base")
 	void StartPlaySequence();
 
+	/// 播放Actor中ActorSequenceComponent组件包含的动画
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "Abnormal | Base")
+	void PauseSequence();
+
+	/// 播放Actor中ActorSequenceComponent组件包含的动画
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "Abnormal | Base")
+	void StopSequence();
+
+	/// 播放Actor中ActorSequenceComponent组件包含的动画
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "Abnormal | Base")
+	void ReplaySequence();
+
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Abnormal | Base")
 	/**
 	 * @brief 在播放动画前的设置。执行流程：

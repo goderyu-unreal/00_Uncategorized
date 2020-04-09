@@ -195,4 +195,5 @@ private:
 	UConfigFileManager ConfigFileManager;
 
 	AActor* PreviewCameraActor = nullptr;
+	AActor* BeforePreviewingActor = nullptr;
 };
