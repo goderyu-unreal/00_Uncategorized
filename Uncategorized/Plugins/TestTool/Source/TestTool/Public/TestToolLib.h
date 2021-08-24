@@ -28,4 +28,7 @@ public:
 	static void CompareTwoMapDifferent(const TMap<FString, int32>& InMapA, const TMap<FString, int32>& InMapB);
 
 	static void PrintLog(const FString& InText, const FColor& InColor);
+
+	UFUNCTION(BlueprintCallable, Category = "TestTool|Lib")
+	static void GetAllObjectsOfClass(TSubclassOf<UObject> ObjectClass, TArray<UObject*>& OutObjects);
 };

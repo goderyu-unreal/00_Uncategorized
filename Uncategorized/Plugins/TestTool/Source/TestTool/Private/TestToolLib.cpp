@@ -17,7 +17,7 @@ void UTestToolLib::PrintLog(const FString& InText, const FColor& InColor)
 TMap<FString, int32> UTestToolLib::GetAllCategoriesObjects()
 {
 	TMap<FString, int32> TempMap;
-	for (TObjectIterator<UObject>Iterator; Iterator; ++Iterator)
+	for (TObjectIterator<UObject> Iterator; Iterator; ++Iterator)
 	{
 		auto TempObject = *Iterator;
 		if (TempObject->IsPendingKill())
@@ -72,6 +72,18 @@ void UTestToolLib::CompareTwoMapDifferent(const TMap<FString, int32>& InOldMap, 
 		{
 			FString Log = Item.Key + ":" + FString::Printf(TEXT("0-->%d"), Item.Value);
 			PrintLog(Log, FColor::Cyan);
+		}
+	}
+}
+
+void UTestToolLib::GetAllObjectsOfClass(TSubclassOf<UObject> ObjectClass, TArray<UObject*>& OutObjects)
+{
+	OutObjects.Reset();
+	if (ObjectClass)
+	{
+		for (TObjectIterator<UObject> Iterator; Iterator; ++Iterator)
+		{
+
 		}
 	}
 }
