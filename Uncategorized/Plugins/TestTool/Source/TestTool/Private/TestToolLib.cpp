@@ -79,11 +79,7 @@ void UTestToolLib::CompareTwoMapDifferent(const TMap<FString, int32>& InOldMap, 
 void UTestToolLib::GetAllObjectsOfClass(TSubclassOf<UObject> ObjectClass, TArray<UObject*>& OutObjects)
 {
 	OutObjects.Reset();
-	if (ObjectClass)
-	{
-		for (TObjectIterator<UObject> Iterator; Iterator; ++Iterator)
-		{
-
-		}
-	}
+	FString ClassName;
+	ObjectClass->GetName(OUT ClassName);
+	GetObjectsOfClass(ObjectClass, OutObjects);
 }
