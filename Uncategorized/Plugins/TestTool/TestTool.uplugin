@@ -1,0 +1,24 @@
+{
+	"FileVersion": 3,
+	"Version": 1,
+	"VersionName": "1.0",
+	"FriendlyName": "TestTool",
+	"Description": "",
+	"Category": "Other",
+	"CreatedBy": "goderyu",
+	"CreatedByURL": "",
+	"DocsURL": "",
+	"MarketplaceURL": "",
+	"SupportURL": "",
+	"CanContainContent": true,
+	"IsBetaVersion": false,
+	"IsExperimentalVersion": false,
+	"Installed": false,
+	"Modules": [
+		{
+			"Name": "TestTool",
+			"Type": "Runtime",
+			"LoadingPhase": "Default"
+		}
+	]
+}
